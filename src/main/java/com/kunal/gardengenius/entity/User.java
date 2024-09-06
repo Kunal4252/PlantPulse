@@ -21,10 +21,8 @@ import lombok.ToString;
 import lombok.ToString.Exclude;
 
 @Entity
-@Table(name = "users", indexes = { 
-    @Index(name = "idx_user_username", columnList = "username"),
-    @Index(name = "idx_user_email", columnList = "email") 
-})
+@Table(name = "users", indexes = { @Index(name = "idx_user_username", columnList = "username"),
+		@Index(name = "idx_user_email", columnList = "email") })
 @Getter
 @Setter
 @NoArgsConstructor
@@ -32,44 +30,47 @@ import lombok.ToString.Exclude;
 @ToString
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(nullable = false)
-    private String firstName;
+	@Column(nullable = false)
+	private String firstName;
 
-    @Column(nullable = false)
-    private String lastName;
+	@Column(nullable = false)
+	private String lastName;
 
-    @Column(nullable = false, unique = true)
-    private String username;
+	@Column(nullable = true)
+	private String profileImageUrl;
 
-    @Exclude
-    @Column(nullable = false)
-    private String password;
+	@Column(nullable = false, unique = true)
+	private String username;
 
-    @Column(nullable = false, unique = true)
-    private String email;
+	@Exclude
+	@Column(nullable = false)
+	private String password;
 
-    @Column(nullable = true)
-    private String phoneNumber;
+	@Column(nullable = false, unique = true)
+	private String email;
 
-    @Column(nullable = true)
-    private String address;
+	@Column(nullable = true)
+	private String phoneNumber;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @ToString.Exclude
-    private List<AuthToken> authTokens;
+	@Column(nullable = true)
+	private String address;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @ToString.Exclude
-    private List<Garden> gardens;
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@ToString.Exclude
+	private List<AuthToken> authTokens;
 
-    // Feedback fields
-    @Column(nullable = true)
-    private String feedbackContent;
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@ToString.Exclude
+	private List<Garden> gardens;
 
-    @Column(nullable = true)
-    private LocalDateTime feedbackCreatedDate;
+	// Feedback fields
+	@Column(nullable = true)
+	private String feedbackContent;
+
+	@Column(nullable = true)
+	private LocalDateTime feedbackCreatedDate;
 }

@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 		const response = await fetch('/api/users/profile', {
 			method: 'GET',
 			headers: {
-				'Authorization': `Bearer ${accessToken}`,  // Use backticks for template literals
+				'Authorization': `Bearer ${accessToken}`,
 				'Content-Type': 'application/json'
 			}
 		});
@@ -72,11 +72,14 @@ function displayUserProfile(profileData) {
 	document.getElementById("profilePhoneNumber").textContent = profileData.phoneNumber || 'N/A';
 	document.getElementById("profileAddress").textContent = profileData.address || 'N/A';
 
-	// Optionally update the profile image
-	const profilePicUrl = profileData.profilePictureUrl || '/api/placeholder/100/100';
-	document.getElementById("userProfilePic").src = profilePicUrl;
-	document.getElementById("profileImage").src = profilePicUrl;
-
 	// Update welcome name
 	document.getElementById("welcomeName").textContent = profileData.firstName || profileData.username;
+
+	// Update the profile image
+	const profilePicUrl = profileData.profileImageUrl || '/api/placeholder/100/100';
+	const profileImages = document.querySelectorAll('.profile-image');
+	profileImages.forEach(img => {
+		img.src = profilePicUrl;
+		img.alt = `${profileData.username}'s profile picture`;
+	});
 }

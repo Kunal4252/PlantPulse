@@ -1,5 +1,6 @@
 package com.kunal.gardengenius.controller;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.kunal.gardengenius.DTO.AuthRequest;
 import com.kunal.gardengenius.DTO.AuthResponse;
@@ -114,22 +117,29 @@ public class UserController {
 	}
 
 	@PostMapping("/register")
-	public ResponseEntity<String> registerUser(@ModelAttribute User user) {
-
+	public ResponseEntity<String> registerUser(@ModelAttribute User user,
+			@RequestParam(required = false) MultipartFile profileImage) {
 		try {
 			Optional<User> existingUser = repository.findByEmail(user.getEmail());
 			if (existingUser.isPresent()) {
 				throw new IllegalArgumentException("User already exists with email: " + user.getEmail());
 			}
 
+			// Handle profile image upload
+			if (profileImage != null && !profileImage.isEmpty()) {
+				String imageUrl = service.uploadProfileImage(profileImage);
+				user.setProfileImageUrl(imageUrl);
+			}
+
 			// Proceed with the registration logic
 			service.addUser(user);
 			return ResponseEntity.ok("User registered successfully!");
 		} catch (IllegalArgumentException e) {
-			// Return a user-friendly response
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		} catch (IOException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Error uploading profile image: " + e.getMessage());
 		}
-
 	}
 
 	@PostMapping("/logout")
@@ -171,14 +181,12 @@ public class UserController {
 	}
 
 	@GetMapping("/profile")
-	public ResponseEntity<?> getUserHome() {
+	public ResponseEntity<Object> getUserHome() {
 		try {
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
 			if (authentication != null && authentication.getPrincipal() instanceof UserInfoDetails) {
 				UserInfoDetails userInfoDetails = (UserInfoDetails) authentication.getPrincipal();
 				User user = userInfoDetails.getUser();
-
 				UserDTO userDTO = new UserDTO();
 				userDTO.setId(user.getId());
 				userDTO.setFirstName(user.getFirstName());
@@ -187,16 +195,14 @@ public class UserController {
 				userDTO.setEmail(user.getEmail());
 				userDTO.setPhoneNumber(user.getPhoneNumber());
 				userDTO.setAddress(user.getAddress());
-
+				userDTO.setProfileImageUrl(user.getProfileImageUrl()); // Assuming User entity has this field
 				return ResponseEntity.ok(userDTO);
 			} else {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
 			}
-
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving user information");
 		}
-
 	}
 
 }
