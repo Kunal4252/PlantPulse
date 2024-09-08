@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Green Haven Community Forum</title>
+<link
+	href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
+	rel="stylesheet">
+<link
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+	rel="stylesheet">
+<style>
+body {
+	background-color: #f0f8ea;
+	font-family: 'Arial', sans-serif;
+}
+
+.navbar {
+	background-color: #2c5e1a;
+}
+
+.navbar-brand, .nav-link {
+	color: #ffffff !important;
+}
+
+.forum-post {
+	background-color: #ffffff;
+	border-radius: 8px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	margin-bottom: 20px;
+	transition: transform 0.2s;
+}
+
+.forum-post:hover {
+	transform: translateY(-5px);
+}
+
+.post-header {
+	background-color: #e8f5e9;
+	padding: 15px;
+	border-top-left-radius: 8px;
+	border-top-right-radius: 8px;
+}
+
+.post-content {
+	padding: 20px;
+}
+
+.post-footer {
+	background-color: #f9f9f9;
+	padding: 10px 20px;
+	border-bottom-left-radius: 8px;
+	border-bottom-right-radius: 8px;
+}
+
+.user-avatar {
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	margin-right: 10px;
+}
+
+.answer {
+	background-color: #f0f0f0;
+	border-radius: 8px;
+	padding: 10px;
+	margin-top: 10px;
+}
+
+.btn-success {
+	background-color: #4a8f29;
+	border-color: #4a8f29;
+}
+
+.btn-success:hover {
+	background-color: #3a7a1a;
+	border-color: #3a7a1a;
+}
+</style>
+</head>
+<body>
+	<nav class="navbar navbar-expand-lg navbar-dark">
+		<div class="container">
+			<a class="navbar-brand" href="#"><i class="fas fa-leaf mr-2"></i>
+				Green Haven Forum</a>
+			<button class="navbar-toggler" type="button"
+				data-bs-toggle="collapse" data-bs-target="#navbarNav"
+				aria-controls="navbarNav" aria-expanded="false"
+				aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarNav">
+				<ul class="navbar-nav ms-auto">
+					<li class="nav-item"><a class="nav-link" href="#"><i
+							class="fas fa-home"></i> Home</a></li>
+					<li class="nav-item"><a class="nav-link" href="#"><i
+							class="fas fa-users"></i> Community</a></li>
+					<li class="nav-item"><a class="nav-link" href="#"><i
+							class="fas fa-user"></i> Profile</a></li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<div class="container mt-5">
+		<h1 class="mb-4">Community Forum</h1>
+
+		<!-- New Post Form -->
+		<div class="card mb-4">
+			<div class="card-body">
+				<h5 class="card-title">Create a New Post</h5>
+				<form id="newPostForm">
+					<div class="mb-3">
+						<label for="postTitle" class="form-label">Title</label> <input
+							type="text" class="form-control" id="postTitle" required>
+					</div>
+					<div class="mb-3">
+						<label for="postContent" class="form-label">Content</label>
+						<textarea class="form-control" id="postContent" rows="3" required></textarea>
+					</div>
+					<button type="submit" class="btn btn-success">Submit Post</button>
+				</form>
+			</div>
+		</div>
+
+		<!-- Forum Posts Container -->
+		<div id="forumPosts"></div>
+
+		<!-- Load More Button -->
+		<div class="text-center mt-4 mb-5">
+			<button id="loadMoreBtn" class="btn btn-outline-success">Load
+				More Posts</button>
+		</div>
+	</div>
+
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+	<script src="/js/community.js"></script>
+
+</body>
+</html>

@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,8 +29,29 @@ public class PostController {
 
 	// Get all posts
 	@GetMapping
-	public List<Post> getAllPosts() {
-		return postService.getAllPosts();
+	public ResponseEntity<List<PostCreationResponseDTO>> getAllPosts() {
+		try {
+			List<Post> posts = postService.getAllPosts();
+			List<PostCreationResponseDTO> response = posts.stream()
+					.map(post -> new PostCreationResponseDTO(post.getId(), post.getTitle(), post.getContent(),
+							post.getCreatedDate(), post.getUser() != null ? post.getUser().getId() : null,
+							post.getUser() != null ? post.getUser().getUsername() : null,
+							post.getUser() != null ? post.getUser().getProfileImageUrl() : null,
+							post.getAnswers() != null
+									? post.getAnswers().stream()
+											.map(answer -> new AnswerDTO(answer.getId(), answer.getContent(),
+													answer.getCreatedDate(),
+													answer.getUser() != null ? answer.getUser().getId() : null,
+													answer.getUser() != null ? answer.getUser().getUsername() : null,
+													answer.getUser() != null ? answer.getUser().getProfileImageUrl()
+															: null))
+											.collect(Collectors.toList())
+									: Collections.emptyList()))
+					.collect(Collectors.toList());
+			return ResponseEntity.ok(response);
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+		}
 	}
 
 	// Get a post by ID

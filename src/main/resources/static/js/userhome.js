@@ -71,7 +71,9 @@ function displayUserProfile(profileData) {
 	document.getElementById("profileEmail").textContent = profileData.email;
 	document.getElementById("profilePhoneNumber").textContent = profileData.phoneNumber || 'N/A';
 	document.getElementById("profileAddress").textContent = profileData.address || 'N/A';
-
+	if (profileData.id) {
+		localStorage.setItem("userId", profileData.id);
+	}
 	// Update welcome name
 	document.getElementById("welcomeName").textContent = profileData.firstName || profileData.username;
 

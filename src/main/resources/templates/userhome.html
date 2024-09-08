@@ -78,6 +78,15 @@ body {
 	background-color: #3a7a1a;
 	border-color: #3a7a1a;
 }
+
+.forum-post {
+	border-bottom: 1px solid #e0e0e0;
+	padding: 10px 0;
+}
+
+.forum-post:last-child {
+	border-bottom: none;
+}
 </style>
 </head>
 <body>
@@ -93,12 +102,12 @@ body {
 			</button>
 			<div class="collapse navbar-collapse" id="navbarNav">
 				<ul class="navbar-nav me-auto">
-					<li class="nav-item"><a class="nav-link" href="#"><i
+					<li class="nav-item"><a class="nav-link" href="/userhome"><i
 							class="fas fa-home"></i> Home</a></li>
-					<li class="nav-item"><a class="nav-link" href="#"><i
-							class="fas fa-seedling"></i> My Garden</a></li>
-					<li class="nav-item"><a class="nav-link" href="#"><i
-							class="fas fa-store"></i> Shop</a></li>
+					<li class="nav-item"><a class="nav-link" href="/post"><i
+							class="fas fa-comments"></i> Post</a></li>
+					<li class="nav-item"><a class="nav-link" href="/communityPost"><i
+							class="fas fa-home"></i> Community Post</a></li>
 				</ul>
 				<div class="user-profile" id="userProfile">
 					<img src="/api/placeholder/40/40" alt="User Profile"
@@ -161,6 +170,32 @@ body {
 						<li class="list-group-item">Planted new sunflower seeds</li>
 						<li class="list-group-item">Installed drip irrigation system</li>
 					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="row mt-5" id="forum">
+			<div class="col-12">
+				<div class="content-section">
+					<h2>Community Forum</h2>
+					<div class="forum-post">
+						<h4>Tips for Growing Organic Tomatoes</h4>
+						<p>by GreenThumb123</p>
+						<p>Here are some of my best tips for growing delicious organic
+							tomatoes...</p>
+					</div>
+					<div class="forum-post">
+						<h4>Help! My roses have black spots</h4>
+						<p>by RoseEnthusiast</p>
+						<p>I've noticed black spots on my rose leaves. What could be
+							causing this and how can I treat it?</p>
+					</div>
+					<div class="forum-post">
+						<h4>Composting 101: Getting Started</h4>
+						<p>by EcoWarrior</p>
+						<p>New to composting? Here's a beginner's guide to get you
+							started on your composting journey...</p>
+					</div>
 				</div>
 			</div>
 		</div>

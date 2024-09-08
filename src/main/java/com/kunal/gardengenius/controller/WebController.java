@@ -26,4 +26,14 @@ public class WebController {
 		return "userhome";
 	}
 
+	@GetMapping("/communityPost")
+	public String communityPage() {
+		return "communityPost";
+	}
+	
+	@GetMapping("/post")
+	public String postPage() {
+		return "post";
+	}
+
 }
