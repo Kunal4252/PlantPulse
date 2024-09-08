@@ -50,14 +50,11 @@ function displayPosts() {
 		postElement.className = 'post';
 		postElement.innerHTML = `
             <h2 class="h4">${post.title}</h2>
-            <p class="post-author mb-2">
-                ${post.profileImageUrl ? `<img src="${post.profileImageUrl}" alt="${post.userName}'s profile" class="profile-image mr-2">` : ''}
-                By ${post.userName || 'Unknown'}
-            </p>
+            <p class="post-author mb-2">By ${post.userName || 'Unknown'}</p>
             <p class="post-content">${post.content}</p>
             <p class="text-muted small">Posted on: ${new Date(post.createdDate).toLocaleString()}</p>
             <div class="d-flex justify-content-between">
-                <button class="btn btn-outline-primary btn-sm" onclick="fetchAndDisplayAnswers(${post.id})">Show Answers</button>
+                <button class="btn btn-outline-primary btn-sm" onclick="toggleAnswers(${post.id})">Show Answers</button>
                 <button class="btn btn-outline-success btn-sm" onclick="showAnswerInput(${post.id})">Give Answer</button>
             </div>
             <div id="answers-${post.id}" class="answers mt-3"></div>
@@ -101,53 +98,7 @@ function toggleAnswers(postId) {
 		answersDiv.style.display = 'none';
 	}
 }
-async function fetchAndDisplayAnswers(postId) {
-	const answersDiv = document.getElementById(`answers-${postId}`);
 
-	if (answersDiv.style.display === 'none' || answersDiv.style.display === '') {
-		answersDiv.style.display = 'block';
-		answersDiv.innerHTML = '<p>Loading answers...</p>';
-
-		const accessToken = getAccessToken();
-		if (!accessToken) {
-			console.error('No access token found. User might not be authenticated.');
-			return;
-		}
-
-		try {
-			const response = await fetch(`/api/posts/${postId}/answers`, {
-				method: 'GET',
-				headers: {
-					'Authorization': `Bearer ${accessToken}`,
-					'Content-Type': 'application/json'
-				}
-			});
-
-			if (!response.ok) {
-				throw new Error(`HTTP error! status: ${response.status}`);
-			}
-
-			const answers = await response.json();
-
-			answersDiv.innerHTML = answers.length > 0
-				? answers.map(answer => `
-                    <div class="answer">
-                        <p>${answer.content}</p>
-                        <p class="text-muted small">
-                            ${answer.profileImageUrl ? `<img src="${answer.profileImageUrl}" alt="${answer.username}'s profile" class="profile-image mr-2">` : ''}
-                            Answered by ${answer.username || 'Unknown'} on ${new Date(answer.createdDate).toLocaleString()}
-                        </p>
-                    </div>
-                `).join('')
-				: '<p class="text-muted">No answers yet.</p>';
-		} catch (error) {
-			console.error('Error fetching answers:', error);
-			answersDiv.innerHTML = '<p class="text-danger">Error loading answers. Please try again later.</p>';
-		}
-	} else {
-		answersDiv.style.display = 'none';
-	}
-}
 
 function showAnswerInput(postId) {
 	const answerInput = document.getElementById(`answerInput-${postId}`);
