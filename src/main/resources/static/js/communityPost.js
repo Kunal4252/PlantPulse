@@ -55,7 +55,9 @@ function displayPosts() {
             <p class="text-muted small">Posted on: ${new Date(post.createdDate).toLocaleString()}</p>
             <div class="d-flex justify-content-between">
                 <button class="btn btn-outline-primary btn-sm" onclick="toggleAnswers(${post.id})">Show Answers</button>
-                <button class="btn btn-outline-success btn-sm" onclick="showAnswerInput(${post.id})">Give Answer</button>
+               <button class="btn btn-outline-success btn-sm" onclick="showAnswerInput(${post.id})">Give Answer</button>
+
+
             </div>
             <div id="answers-${post.id}" class="answers mt-3"></div>
             <div id="answerInput-${post.id}" class="mt-3" style="display: none;">
@@ -70,7 +72,6 @@ function displayPosts() {
 
 	updatePagination();
 }
-
 
 function updatePagination() {
 	const totalPages = Math.ceil(allPosts.length / postsPerPage);
@@ -99,13 +100,13 @@ function toggleAnswers(postId) {
 	}
 }
 
-
 function showAnswerInput(postId) {
 	const answerInput = document.getElementById(`answerInput-${postId}`);
 	answerInput.style.display = 'block';
 }
 
 async function submitAnswer(postId) {
+	console.log('Submitting answer for post ID:', postId); // Add this line for debugging
 	const newAnswerInput = document.getElementById(`newAnswer-${postId}`);
 	const answer = newAnswerInput.value.trim();
 
@@ -142,6 +143,8 @@ async function submitAnswer(postId) {
 			console.error('Error submitting answer:', error);
 			alert('Error submitting answer. Please try again later.');
 		}
+	} else {
+		console.error('Answer input is empty.');
 	}
 }
 

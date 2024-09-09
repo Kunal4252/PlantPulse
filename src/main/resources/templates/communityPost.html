@@ -3,55 +3,37 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Garden Genius Community</title>
-<!-- Bootstrap CSS -->
-<link
-	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
-	rel="stylesheet">
+<title>Green Haven Forum</title>
 <link
 	href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
 	rel="stylesheet">
 <link
-	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
 	rel="stylesheet">
-<!-- Custom CSS -->
 <style>
-body {
-	background-color: #f8f9fa;
+.navbar {
+	background-color: #2c3e50;
 }
 
-.post {
-	background-color: white;
-	border: 1px solid #dee2e6;
-	border-radius: 0.25rem;
-	padding: 1rem;
-	margin-bottom: 1rem;
+.forum-post {
+	border: 1px solid #ddd;
+	padding: 15px;
+	margin-bottom: 20px;
+	border-radius: 5px;
 }
 
-.post-author {
-	color: #6c757d;
-	font-style: italic;
-}
-
-.post-content {
-	margin-bottom: 1rem;
-}
-
-.answers {
-	margin-top: 1rem;
-	display: none;
+.user-avatar {
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	margin-right: 10px;
 }
 
 .answer {
 	background-color: #f8f9fa;
-	border: 1px solid #e9ecef;
-	border-radius: 0.25rem;
-	padding: 0.5rem;
-	margin-top: 0.5rem;
-}
-
-#currentPage {
-	cursor: default;
+	padding: 10px;
+	margin-top: 10px;
+	border-radius: 5px;
 }
 </style>
 </head>
@@ -73,45 +55,226 @@ body {
 					<li class="nav-item"><a class="nav-link" href="/post"><i
 							class="fas fa-users"></i> Post</a></li>
 					<li class="nav-item"><a class="nav-link" href="/communityPost"><i
-							class="fas fa-user"></i>communityPost</a></li>
+							class="fas fa-user"></i> Community Post</a></li>
 				</ul>
 			</div>
 		</div>
 	</nav>
 
-	<div class="container mt-4">
-		<h1 class="text-center mb-4">Garden Genius Community</h1>
+	<div class="container mt-5">
+		<h1 class="mb-4">Community Forum</h1>
 
-		<div class="row mb-4">
-			<div class="col">
-				<div class="input-group">
-					<input type="text" id="searchInput" class="form-control"
-						placeholder="Search posts...">
-					<button class="btn btn-primary" id="searchButton">Search</button>
-				</div>
-			</div>
+		<div class="input-group mb-4">
+			<input type="text" class="form-control" id="searchInput"
+				placeholder="Search posts by title">
+			<button class="btn btn-outline-success" id="searchButton"
+				onclick="searchPosts()">Search</button>
 		</div>
 
-		<div id="postsContainer"></div>
+		<!-- Forum Posts Container -->
+		<div id="forumPosts"></div>
 
-		<nav aria-label="Page navigation">
-			<ul class="pagination justify-content-center mt-4">
-				<li class="page-item">
-					<button class="page-link" id="prevPage">Previous</button>
-				</li>
-				<li class="page-item"><span class="page-link" id="currentPage"></span>
-				</li>
-				<li class="page-item">
-					<button class="page-link" id="nextPage">Next</button>
-				</li>
-			</ul>
-		</nav>
+		<!-- Load More Button -->
+		<div class="text-center mt-4 mb-5">
+			<button id="loadMoreBtn" class="btn btn-outline-success">Load
+				More Posts</button>
+		</div>
 	</div>
 
-	<!-- Bootstrap Bundle with Popper -->
 	<script
-		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-	<!-- Custom JavaScript -->
-	<script src="/js/communityPost.js"></script>
+		src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+	<script>
+	// Function to get the access token (you need to implement this based on your authentication method)
+	function getAccessToken() {
+	    // For example, you might retrieve it from localStorage
+	    return localStorage.getItem('accessToken');
+	}
+
+	// Function to format date
+	function formatDate(dateString) {
+	    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+	    return new Date(dateString).toLocaleDateString('en-US', options);
+	}
+
+	// Function to create a post element
+	function createPostElement(post) {
+	    const postElement = document.createElement('div');
+	    postElement.className = 'forum-post';
+	    postElement.innerHTML = `
+	        <div class="post-header d-flex align-items-center">
+	            <img src="${post.profileImageUrl || '/api/placeholder/40/40'}" alt="${post.userName}" class="user-avatar">
+	            <div>
+	                <h5 class="mb-0">${post.title}</h5>
+	                <small>Posted by ${post.userName} on ${formatDate(post.createdDate)}</small>
+	            </div>
+	        </div>
+	        <div class="post-content">
+	            <p>${post.content}</p>
+	        </div>
+	        <div class="post-footer">
+	            <button class="btn btn-sm btn-outline-secondary" onclick="toggleAnswers(${post.postId})">
+	                Show Answers (${post.answers.length})
+	            </button>
+	            <button class="btn btn-sm btn-outline-primary" onclick="toggleAnswerForm(${post.postId})">
+	                Give Answer
+	            </button>
+	            <div id="answerForm-${post.postId}" style="display: none;" class="mt-3">
+	                <textarea class="form-control mb-2" id="answerContent-${post.postId}" rows="2" placeholder="Your answer..."></textarea>
+	                <button class="btn btn-sm btn-success" onclick="submitAnswer(${post.postId})">Submit Answer</button>
+	            </div>
+	            <div id="answers-${post.postId}" class="answers mt-3" style="display: none;">
+	                ${post.answers.map(answer => `
+	                    <div class="answer">
+	                        <img src="${answer.profileImageUrl || '/api/placeholder/40/40'}" alt="${answer.userName}" class="user-avatar" style="width: 30px; height: 30px;">
+	                        <strong>${answer.userName}:</strong> ${answer.content}
+	                        <small class="d-block mt-1">Posted on ${formatDate(answer.createdDate)}</small>
+	                    </div>
+	                `).join('')}
+	            </div>
+	        </div>
+	    `;
+	    return postElement;
+	}
+
+	// Function to display posts
+	function displayPosts(posts) {
+	    const forumPosts = document.getElementById('forumPosts');
+	    forumPosts.innerHTML = ''; // Clear the existing posts
+	    posts.forEach(post => {
+	        forumPosts.appendChild(createPostElement(post));
+	    });
+	}
+
+	// Function to toggle answers visibility
+	function toggleAnswers(postId) {
+	    const answersDiv = document.getElementById(`answers-${postId}`);
+	    if (answersDiv.style.display === 'none') {
+	        answersDiv.style.display = 'block';
+	    } else {
+	        answersDiv.style.display = 'none';
+	    }
+	}
+
+	// Function to toggle answer form visibility
+	function toggleAnswerForm(postId) {
+	    const answerForm = document.getElementById(`answerForm-${postId}`);
+	    if (answerForm.style.display === 'none') {
+	        answerForm.style.display = 'block';
+	    } else {
+	        answerForm.style.display = 'none';
+	    }
+	}
+
+	// Function to submit an answer
+	async function submitAnswer(postId) {
+    // Check if the input element exists
+    const answerInput = document.getElementById(`answerContent-${postId}`);
+    if (!answerInput) {
+        console.error('Answer content input not found.');
+        return;
+    }
+    
+    const content = answerInput.value.trim();
+    const userId = localStorage.getItem('userId');
+    
+    // Check if userId is available
+    if (!userId) {
+        console.error('User ID not found in localStorage.');
+        return;
+    }
+
+    // Create the request body
+    const requestBody = {
+        content: content,
+        user: {
+            id: userId
+        }
+    };
+
+    try {
+        const response = await fetch(`/api/posts/${postId}/answers`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getAccessToken()}`
+            },
+            body: JSON.stringify(requestBody),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to submit answer. Status: ${response.status}`);
+        }
+
+        // Clear the answer form and hide it
+        answerInput.value = '';
+        toggleAnswerForm(postId);
+
+        // Update the answer count
+        const showAnswersButton = document.querySelector(`#answers-${postId}`).previousElementSibling;
+        if (showAnswersButton) {
+            const currentCountMatch = showAnswersButton.textContent.match(/\d+/);
+            if (currentCountMatch) {
+                const currentCount = parseInt(currentCountMatch[0]);
+                showAnswersButton.textContent = `Show Answers (${currentCount + 1})`;
+            } else {
+                console.error('Failed to parse answer count from button text.');
+            }
+        } else {
+            console.error('Show answers button not found.');
+        }
+
+        // Reload the posts to show the new answer
+        loadMorePosts();
+    } catch (error) {
+        console.error('Error submitting answer:', error);
+        alert('Failed to submit answer. Please try again later.');
+    }
+}
+
+	// Function to search posts by title
+	async function searchPosts() {
+	    const searchInput = document.getElementById('searchInput').value;
+	    try {
+	        const response = await fetch(`/api/posts?title=${encodeURIComponent(searchInput)}`, {
+	            headers: {
+	                'Authorization': `Bearer ${getAccessToken()}`
+	            }
+	        });
+	        if (!response.ok) {
+	            throw new Error('Failed to fetch posts');
+	        }
+	        const posts = await response.json();
+	        displayPosts(posts);
+	    } catch (error) {
+	        console.error('Error searching posts:', error);
+	        alert('Failed to search posts. Please try again later.');
+	    }
+	}
+
+	let currentPage = 0;
+	const pageSize = 10; // Number of posts to fetch per page
+
+	async function loadMorePosts() {
+	    try {
+	        const response = await fetch(`/api/posts?page=${currentPage}&size=${pageSize}`, {
+	            headers: {
+	                'Authorization': `Bearer ${getAccessToken()}`
+	            }
+	        });
+	        if (!response.ok) {
+	            throw new Error('Failed to fetch posts');
+	        }
+	        const posts = await response.json();
+	        displayPosts(posts);
+	        currentPage++;
+	    } catch (error) {
+	        console.error('Error fetching posts:', error);
+	        alert('Failed to load posts. Please try again later.');
+	    }
+	}
+
+	document.addEventListener('DOMContentLoaded', loadMorePosts);
+	document.getElementById('searchButton').addEventListener('click', searchPosts);
+    </script>
 </body>
 </html>
