@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.kunal.gardengenius.entity.Post;
@@ -21,9 +23,27 @@ public class PostService {
 	@Autowired
 	private UserRepository userRepository;
 
+	// Method for searching posts by title
+	public List<Post> searchPostsByTitle(String title) {
+		// Assuming you have a repository method for searching posts by title
+		return postRepository.findByTitleContainingIgnoreCase(title);
+	}
+
 	// Get all posts
 	public List<Post> getAllPosts() {
-		return postRepository.findAll();
+		return postRepository.findAllOrderedByDateDesc();
+	}
+
+	public List<Post> getPostsByUserId(Long userId) {
+		return postRepository.findByUserIdOrderedByDateDesc(userId);
+	}
+
+	public boolean deletePost(Long id) {
+		if (postRepository.existsById(id)) {
+			postRepository.deleteById(id);
+			return true;
+		}
+		return false;
 	}
 
 	// Get a post by ID
