@@ -25,40 +25,47 @@ public class JwtUtils {
 	@Value("${jwt.refreshExpirationMs}")
 	private int jwtRefreshExpirationMs;
 
+	@SuppressWarnings("deprecation")
 	public String generateAccessToken(Authentication authentication) {
 		return Jwts.builder().setSubject(authentication.getName()).setIssuedAt(new Date())
 				.setExpiration(new Date(new Date().getTime() + jwtExpirationMs))
 				.signWith(SignatureAlgorithm.HS256, jwtAccessSecret).compact();
 	}
 
+	@SuppressWarnings("deprecation")
 	public String generateRefreshToken(Authentication authentication) {
 		return Jwts.builder().setSubject(authentication.getName()).setIssuedAt(new Date())
 				.setExpiration(new Date(new Date().getTime() + jwtRefreshExpirationMs))
 				.signWith(SignatureAlgorithm.HS256, jwtRefreshSecret).compact();
 	}
 
+	@SuppressWarnings("deprecation")
 	public String generateAccessToken(String username) {
 		return Jwts.builder().setSubject(username).setIssuedAt(new Date())
 				.setExpiration(new Date(new Date().getTime() + jwtExpirationMs))
 				.signWith(SignatureAlgorithm.HS256, jwtAccessSecret).compact();
 	}
 
+	@SuppressWarnings("deprecation")
 	public String generateRefreshToken(String username) {
 		return Jwts.builder().setSubject(username).setIssuedAt(new Date())
 				.setExpiration(new Date(new Date().getTime() + jwtRefreshExpirationMs))
 				.signWith(SignatureAlgorithm.HS256, jwtRefreshSecret).compact();
 	}
 
+	@SuppressWarnings("deprecation")
 	public String getUserNameFromAccessToken(String token) {
 		Claims claims = Jwts.parser().setSigningKey(jwtAccessSecret).parseClaimsJws(token).getBody();
 		return claims.getSubject();
 	}
 
+	@SuppressWarnings("deprecation")
 	public String getUserNameFromRefreshToken(String token) {
 		Claims claims = Jwts.parser().setSigningKey(jwtRefreshSecret).parseClaimsJws(token).getBody();
 		return claims.getSubject();
 	}
 
+	@SuppressWarnings("deprecation")
 	public boolean validateAccessToken(String token) {
 		try {
 			Jwts.parser().setSigningKey(jwtAccessSecret).parseClaimsJws(token);
@@ -69,6 +76,7 @@ public class JwtUtils {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	public boolean validatRefreshToken(String token) {
 		try {
 			Jwts.parser().setSigningKey(jwtRefreshSecret).parseClaimsJws(token);

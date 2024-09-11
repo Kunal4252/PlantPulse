@@ -2,7 +2,6 @@ package com.kunal.gardengenius.controller;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,21 +33,7 @@ public class PostController {
 	public ResponseEntity<List<PostCreationResponseDTO>> getAllPosts() {
 		try {
 			List<Post> posts = postService.getAllPosts();
-			List<PostCreationResponseDTO> response = posts.stream()
-					.map(post -> new PostCreationResponseDTO(post.getId(), post.getTitle(), post.getContent(),
-							post.getCreatedDate(), post.getUser() != null ? post.getUser().getId() : null,
-							post.getUser() != null ? post.getUser().getUsername() : null,
-							post.getUser() != null ? post.getUser().getProfileImageUrl() : null,
-							post.getAnswers() != null
-									? post.getAnswers().stream()
-											.map(answer -> new AnswerDTO(answer.getId(), answer.getContent(),
-													answer.getCreatedDate(),
-													answer.getUser() != null ? answer.getUser().getId() : null,
-													answer.getUser() != null ? answer.getUser().getUsername() : null,
-													answer.getUser() != null ? answer.getUser().getProfileImageUrl()
-															: null))
-											.collect(Collectors.toList())
-									: Collections.emptyList()))
+			List<PostCreationResponseDTO> response = posts.stream().map(this::convertToDTO) // Use convertToDTO method
 					.collect(Collectors.toList());
 			return ResponseEntity.ok(response);
 		} catch (Exception e) {
@@ -60,21 +45,7 @@ public class PostController {
 	public ResponseEntity<List<PostCreationResponseDTO>> getPostsByUserId(@PathVariable Long userId) {
 		try {
 			List<Post> posts = postService.getPostsByUserId(userId);
-			List<PostCreationResponseDTO> response = posts.stream()
-					.map(post -> new PostCreationResponseDTO(post.getId(), post.getTitle(), post.getContent(),
-							post.getCreatedDate(), post.getUser() != null ? post.getUser().getId() : null,
-							post.getUser() != null ? post.getUser().getUsername() : null,
-							post.getUser() != null ? post.getUser().getProfileImageUrl() : null,
-							post.getAnswers() != null
-									? post.getAnswers().stream()
-											.map(answer -> new AnswerDTO(answer.getId(), answer.getContent(),
-													answer.getCreatedDate(),
-													answer.getUser() != null ? answer.getUser().getId() : null,
-													answer.getUser() != null ? answer.getUser().getUsername() : null,
-													answer.getUser() != null ? answer.getUser().getProfileImageUrl()
-															: null))
-											.collect(Collectors.toList())
-									: Collections.emptyList()))
+			List<PostCreationResponseDTO> response = posts.stream().map(this::convertToDTO) // Use convertToDTO method
 					.collect(Collectors.toList());
 			return ResponseEntity.ok(response);
 		} catch (Exception e) {
@@ -96,25 +67,6 @@ public class PostController {
 		}
 	}
 
-//	@GetMapping
-//	public ResponseEntity<PostPageResponseDTO> getPaginatedPosts(@RequestParam(defaultValue = "0") int page,
-//			@RequestParam(defaultValue = "10") int size) {
-//		try {
-//			Pageable pageable = PageRequest.of(page, size);
-//			Page<Post> postPage = postService.getPaginatedPosts(pageable);
-//
-//			List<PostCreationResponseDTO> postDTOs = postPage.getContent().stream().map(this::convertToDTO)
-//					.collect(Collectors.toList());
-//
-//			PostPageResponseDTO response = new PostPageResponseDTO(postDTOs, postPage.getTotalPages(),
-//					postPage.getTotalElements(), postPage.getSize(), postPage.getNumber());
-//
-//			return ResponseEntity.ok(response);
-//		} catch (Exception e) {
-//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-//		}
-//	}
-
 	// Search posts by title
 	@GetMapping("/search")
 	public ResponseEntity<List<PostCreationResponseDTO>> searchPosts(@RequestParam String title) {
@@ -122,7 +74,7 @@ public class PostController {
 			// Fetch all posts matching the search title without pagination
 			List<Post> posts = postService.searchPostsByTitle(title);
 
-			// Convert posts to DTOs
+			// Convert posts to DTOs using convertToDTO method
 			List<PostCreationResponseDTO> postDTOs = posts.stream().map(this::convertToDTO)
 					.collect(Collectors.toList());
 
@@ -132,29 +84,12 @@ public class PostController {
 		}
 	}
 
-	// Get a post by IDa
-	@GetMapping("/{id}")
-	public ResponseEntity<Post> getPostById(@PathVariable Long id) {
-		Optional<Post> post = postService.getPostById(id);
-		return post.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-	}
-
 	// Create a post
 	@PostMapping
 	public ResponseEntity<PostCreationResponseDTO> createPost(@RequestBody Post post) {
 		try {
 			Post createdPost = postService.createPost(post);
-			PostCreationResponseDTO response = new PostCreationResponseDTO(createdPost.getId(), createdPost.getTitle(),
-					createdPost.getContent(), createdPost.getCreatedDate(),
-					createdPost.getUser() != null ? createdPost.getUser().getId() : null,
-					createdPost.getUser() != null ? createdPost.getUser().getUsername() : null,
-					createdPost.getUser() != null ? createdPost.getUser().getProfileImageUrl() : null,
-					createdPost.getAnswers() != null ? createdPost.getAnswers().stream()
-							.map(answer -> new AnswerDTO(answer.getId(), answer.getContent(), answer.getCreatedDate(),
-									answer.getUser() != null ? answer.getUser().getId() : null,
-									answer.getUser() != null ? answer.getUser().getUsername() : null,
-									answer.getUser() != null ? answer.getUser().getProfileImageUrl() : null))
-							.collect(Collectors.toList()) : Collections.emptyList());
+			PostCreationResponseDTO response = convertToDTO(createdPost); // Use convertToDTO method
 			return ResponseEntity.ok(response);
 		} catch (IllegalArgumentException e) {
 			return ResponseEntity.badRequest().body(null);
@@ -178,5 +113,4 @@ public class PostController {
 						)).collect(Collectors.toList()) : Collections.emptyList() // Handle null or empty answers
 		);
 	}
-
 }
