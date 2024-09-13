@@ -35,5 +35,10 @@ public class WebController {
 	public String postPage() {
 		return "post";
 	}
+	
+	@GetMapping("/plantidentification")
+	public String plantIdentification() {
+		return "plantidentification";
+	}
 
 }

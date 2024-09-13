@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plant Identification</title>
+<style>
+body {
+	font-family: Arial, sans-serif;
+	line-height: 1.6;
+	color: #333;
+	max-width: 800px;
+	margin: 0 auto;
+	padding: 20px;
+}
+
+h1 {
+	text-align: center;
+	color: #2c3e50;
+}
+
+form {
+	background: #f4f7f8;
+	border-radius: 8px;
+	padding: 20px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+	margin-bottom: 15px;
+}
+
+label {
+	display: block;
+	margin-bottom: 5px;
+}
+
+input[type="file"], select {
+	width: 100%;
+	padding: 8px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+}
+
+button {
+	background-color: #3498db;
+	color: white;
+	padding: 10px 15px;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 16px;
+	margin-right: 10px;
+}
+
+button:hover {
+	background-color: #2980b9;
+}
+
+#result {
+	margin-top: 20px;
+	white-space: pre-wrap;
+	background: #ecf0f1;
+	padding: 15px;
+	border-radius: 4px;
+}
+
+.image-input {
+	margin-bottom: 10px;
+	padding: 10px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+}
+</style>
+</head>
+<body>
+	<h1>Plant Identification</h1>
+	<form id="plantForm">
+		<div id="imageInputs">
+			<div class="image-input">
+				<div class="form-group">
+					<label for="image1">Plant Image 1:</label> <input type="file"
+						id="image1" name="image" accept="image/*" required>
+				</div>
+				<div class="form-group">
+					<label for="organ1">Plant Organ:</label> <select id="organ1"
+						name="organ" required>
+						<option value="">Select plant part</option>
+						<option value="flower">Flower</option>
+						<option value="leaf">Leaf</option>
+						<option value="fruit">Fruit</option>
+						<option value="bark">Bark</option>
+						<option value="habit">Habit</option>
+						<option value="other">Other</option>
+					</select>
+				</div>
+			</div>
+		</div>
+		<button type="button" id="addImage">Add Another Image</button>
+		<button type="submit">Identify Plant</button>
+	</form>
+	<div id="result"></div>
+
+	<script>
+        let imageCount = 1;
+
+        document.getElementById('addImage').addEventListener('click', () => {
+            if (imageCount < 5) {
+                imageCount++;
+                const newInput = document.createElement('div');
+                newInput.classList.add('image-input');
+                newInput.innerHTML = `
+                    <div class="form-group">
+                        <label for="image${imageCount}">Plant Image ${imageCount}:</label>
+                        <input type="file" id="image${imageCount}" name="image" accept="image/*" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="organ${imageCount}">Plant Organ:</label>
+                        <select id="organ${imageCount}" name="organ" required>
+                            <option value="">Select plant part</option>
+                            <option value="flower">Flower</option>
+                            <option value="leaf">Leaf</option>
+                            <option value="fruit">Fruit</option>
+                            <option value="bark">Bark</option>
+                            <option value="habit">Habit</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                `;
+                document.getElementById('imageInputs').appendChild(newInput);
+            } else {
+                alert('Maximum of 5 images allowed');
+            }
+        });
+
+        document.getElementById('plantForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData();
+
+            for (let i = 1; i <= imageCount; i++) {
+                const imageFile = document.getElementById(`image${i}`).files[0];
+                const organ = document.getElementById(`organ${i}`).value;
+                
+                if (imageFile && organ) {
+                    formData.append('images', imageFile);
+                    formData.append('organs', organ);
+                }
+            }
+
+            // Assuming you have the token stored in localStorage
+            const token = localStorage.getItem('accessToken');
+
+            try {
+                const response = await fetch('http://localhost:8082/api/plants/identify', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}` // Adding the authorization token
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').textContent = 'An error occurred. Please try again. Error: ' + error.message;
+            }
+        });
+
+    </script>
+</body>
+</html>
