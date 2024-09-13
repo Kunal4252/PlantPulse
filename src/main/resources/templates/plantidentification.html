@@ -3,104 +3,144 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Plant Identification</title>
+<title>Plant Identification - Green Haven Forum</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<link
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+	rel="stylesheet">
 <style>
 body {
-	font-family: Arial, sans-serif;
-	line-height: 1.6;
-	color: #333;
-	max-width: 800px;
-	margin: 0 auto;
-	padding: 20px;
+	background-image:
+		url('https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1920&q=80');
+	background-size: cover;
+	background-attachment: fixed;
+	background-position: center;
 }
 
-h1 {
-	text-align: center;
-	color: #2c3e50;
+.main-container {
+	background-color: rgba(255, 255, 255, 0.9);
+	border-radius: 15px;
+	padding: 30px;
+	margin-top: 30px;
+	margin-bottom: 30px;
 }
 
-form {
-	background: #f4f7f8;
-	border-radius: 8px;
-	padding: 20px;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.navbar {
+	background-color: #2c5e1a;
 }
 
-.form-group {
-	margin-bottom: 15px;
+.navbar-brand, .nav-link {
+	color: #ffffff !important;
 }
 
-label {
-	display: block;
-	margin-bottom: 5px;
+.card {
+	margin-bottom: 20px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	transition: transform 0.3s;
 }
 
-input[type="file"], select {
-	width: 100%;
-	padding: 8px;
-	border: 1px solid #ddd;
-	border-radius: 4px;
+.card:hover {
+	transform: translateY(-5px);
 }
 
-button {
-	background-color: #3498db;
+.card-header {
+	background-color: #198754;
 	color: white;
-	padding: 10px 15px;
-	border: none;
-	border-radius: 4px;
-	cursor: pointer;
-	font-size: 16px;
-	margin-right: 10px;
 }
 
-button:hover {
-	background-color: #2980b9;
+.btn-primary {
+	background-color: #198754;
+	border-color: #198754;
 }
 
-#result {
-	margin-top: 20px;
-	white-space: pre-wrap;
-	background: #ecf0f1;
-	padding: 15px;
-	border-radius: 4px;
+.btn-primary:hover {
+	background-color: #146c43;
+	border-color: #146c43;
 }
 
-.image-input {
-	margin-bottom: 10px;
-	padding: 10px;
-	border: 1px solid #ddd;
-	border-radius: 4px;
+.result-tag {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	padding: 5px 10px;
+	border-radius: 15px;
+	font-weight: bold;
+}
+
+.best-match {
+	background-color: #ffc107;
+	color: #000;
+}
+
+.second-best {
+	background-color: #6c757d;
+	color: #fff;
 }
 </style>
 </head>
 <body>
-	<h1>Plant Identification</h1>
-	<form id="plantForm">
-		<div id="imageInputs">
-			<div class="image-input">
-				<div class="form-group">
-					<label for="image1">Plant Image 1:</label> <input type="file"
-						id="image1" name="image" accept="image/*" required>
-				</div>
-				<div class="form-group">
-					<label for="organ1">Plant Organ:</label> <select id="organ1"
-						name="organ" required>
-						<option value="">Select plant part</option>
-						<option value="flower">Flower</option>
-						<option value="leaf">Leaf</option>
-						<option value="fruit">Fruit</option>
-						<option value="bark">Bark</option>
-						<option value="habit">Habit</option>
-						<option value="other">Other</option>
-					</select>
-				</div>
+	<nav class="navbar navbar-expand-lg navbar-dark">
+		<div class="container">
+			<a class="navbar-brand" href="#"><i class="fas fa-leaf mr-2"></i>
+				Green Haven Forum</a>
+			<button class="navbar-toggler" type="button"
+				data-bs-toggle="collapse" data-bs-target="#navbarNav"
+				aria-controls="navbarNav" aria-expanded="false"
+				aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarNav">
+				<ul class="navbar-nav ms-auto">
+					<li class="nav-item"><a class="nav-link" href="/userhome"><i
+							class="fas fa-home"></i> Home</a></li>
+					<li class="nav-item"><a class="nav-link" href="/post"><i
+							class="fas fa-user"></i> Post</a></li>
+					<li class="nav-item"><a class="nav-link" href="/communityPost"><i
+							class="fas fa-users"></i>communityPost</a></li>
+					<li class="nav-item"><a class="nav-link active" href="/plantidentification"><i
+							class="fas fa-seedling"></i> Plant Identifier</a></li>
+				</ul>
 			</div>
 		</div>
-		<button type="button" id="addImage">Add Another Image</button>
-		<button type="submit">Identify Plant</button>
-	</form>
-	<div id="result"></div>
+	</nav>
 
+	<div class="main-container container mt-5">
+		<h1 class="text-center mb-4">Plant Identification</h1>
+		<form id="plantForm" class="mb-4">
+			<div id="imageInputs">
+				<div class="card mb-3">
+					<div class="card-body">
+						<div class="mb-3">
+							<label for="image1" class="form-label">Plant Image 1:</label> <input
+								type="file" class="form-control" id="image1" name="image"
+								accept="image/*" required>
+						</div>
+						<div class="mb-3">
+							<label for="organ1" class="form-label">Plant Organ:</label> <select
+								class="form-select" id="organ1" name="organ" required>
+								<option value="">Select plant part</option>
+								<option value="flower">Flower</option>
+								<option value="leaf">Leaf</option>
+								<option value="fruit">Fruit</option>
+								<option value="bark">Bark</option>
+								<option value="habit">Habit</option>
+								<option value="other">Other</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<button type="button" id="addImage" class="btn btn-secondary me-2">Add
+				Another Image</button>
+			<button type="submit" class="btn btn-primary">Identify Plant</button>
+		</form>
+		<div id="result" class="mt-4"></div>
+	</div>
+
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 	<script>
         let imageCount = 1;
 
@@ -108,23 +148,25 @@ button:hover {
             if (imageCount < 5) {
                 imageCount++;
                 const newInput = document.createElement('div');
-                newInput.classList.add('image-input');
+                newInput.classList.add('card', 'mb-3');
                 newInput.innerHTML = `
-                    <div class="form-group">
-                        <label for="image${imageCount}">Plant Image ${imageCount}:</label>
-                        <input type="file" id="image${imageCount}" name="image" accept="image/*" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="organ${imageCount}">Plant Organ:</label>
-                        <select id="organ${imageCount}" name="organ" required>
-                            <option value="">Select plant part</option>
-                            <option value="flower">Flower</option>
-                            <option value="leaf">Leaf</option>
-                            <option value="fruit">Fruit</option>
-                            <option value="bark">Bark</option>
-                            <option value="habit">Habit</option>
-                            <option value="other">Other</option>
-                        </select>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="image${imageCount}" class="form-label">Plant Image ${imageCount}:</label>
+                            <input type="file" class="form-control" id="image${imageCount}" name="image" accept="image/*" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="organ${imageCount}" class="form-label">Plant Organ:</label>
+                            <select class="form-select" id="organ${imageCount}" name="organ" required>
+                                <option value="">Select plant part</option>
+                                <option value="flower">Flower</option>
+                                <option value="leaf">Leaf</option>
+                                <option value="fruit">Fruit</option>
+                                <option value="bark">Bark</option>
+                                <option value="habit">Habit</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
                     </div>
                 `;
                 document.getElementById('imageInputs').appendChild(newInput);
@@ -148,14 +190,13 @@ button:hover {
                 }
             }
 
-            // Assuming you have the token stored in localStorage
             const token = localStorage.getItem('accessToken');
 
             try {
                 const response = await fetch('http://localhost:8082/api/plants/identify', {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${token}` // Adding the authorization token
+                        'Authorization': `Bearer ${token}`
                     },
                     body: formData
                 });
@@ -165,13 +206,44 @@ button:hover {
                 }
 
                 const data = await response.json();
-                document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+                displayResults(data);
             } catch (error) {
                 console.error('Error:', error);
-                document.getElementById('result').textContent = 'An error occurred. Please try again. Error: ' + error.message;
+                document.getElementById('result').innerHTML = `
+                    <div class="alert alert-danger" role="alert">
+                        An error occurred. Please try again. Error: ${error.message}
+                    </div>
+                `;
             }
         });
 
+        function displayResults(results) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';
+
+            results.forEach((plant, index) => {
+                const card = document.createElement('div');
+                card.classList.add('card', 'mb-3', 'position-relative');
+                card.innerHTML = `
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Plant ${index + 1}: ${plant.scientificName}</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text"><strong>Common Names:</strong> ${plant.commonNames}</p>
+                        <p class="card-text"><strong>Family:</strong> ${plant.family}</p>
+                        <p class="card-text"><strong>Genus:</strong> ${plant.genus}</p>
+                        <div class="mt-3">
+                            <a href="https://www.gbif.org/species/${plant.gbifId}" target="_blank" class="btn btn-outline-primary me-2">View on GBIF</a>
+                            <a href="http://powo.science.kew.org/taxon/${plant.powoId}" target="_blank" class="btn btn-outline-secondary">View on POWO</a>
+                        </div>
+                    </div>
+                    <span class="result-tag ${index === 0 ? 'best-match' : index === 1 ? 'second-best' : 'd-none'}">
+                        ${index === 0 ? 'Best Match' : index === 1 ? 'Second Best' : ''}
+                    </span>
+                `;
+                resultDiv.appendChild(card);
+            });
+        }
     </script>
 </body>
 </html>

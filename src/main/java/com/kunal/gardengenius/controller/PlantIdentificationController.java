@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.kunal.gardengenius.DTO.PlantIdentificationResult;
 import com.kunal.gardengenius.service.PlantIdentificationService;
 
 @RestController
@@ -24,10 +25,12 @@ public class PlantIdentificationController {
 	}
 
 	@PostMapping("/identify")
-	public ResponseEntity<String> identifyPlant(@RequestParam("images") List<MultipartFile> images,
-			@RequestParam("organs") List<String> organs) {
-		return plantIdentificationService.identifyPlant(images, organs);
+	public ResponseEntity<List<PlantIdentificationResult>> identifyPlant(
+			@RequestParam("images") List<MultipartFile> images, @RequestParam("organs") List<String> organs) {
+		List<PlantIdentificationResult> results = plantIdentificationService.identifyPlant(images, organs);
+		if (results.isEmpty()) {
+			return ResponseEntity.notFound().build();
+		}
+		return ResponseEntity.ok(results);
 	}
-	
-
 }
