@@ -1,7 +1,5 @@
-// Function to get the access token (you need to implement this based on your authentication method)
-function getAccessToken() {
-	return localStorage.getItem('accessToken');
-}
+// Function to get the access token (now handled by fetchWithToken)
+
 
 // Function to format date
 function formatDate(dateString) {
@@ -14,43 +12,43 @@ function createPostElement(post) {
 	const postElement = document.createElement('div');
 	postElement.className = 'forum-post';
 	postElement.innerHTML = `
-	                <div class="post-header d-flex align-items-center">
-	                    <img src="${post.profileImageUrl || '/api/placeholder/40/40'}" alt="${post.userName}" class="user-avatar">
-	                    <div>
-	                        <h5 class="mb-0">${post.title}</h5>
-	                        <small>Posted by ${post.userName} on ${formatDate(post.createdDate)}</small>
-	                    </div>
-	                </div>
-	                <div class="post-content">
-	                    <p>${post.content}</p>
-	                </div>
-	                <div class="post-footer">
-	                    <button class="btn btn-sm btn-outline-secondary" onclick="toggleAnswers(${post.postId})">
-	                        Show Answers (${post.answers.length})
-	                    </button>
-	                    <button class="btn btn-sm btn-outline-primary" onclick="toggleAnswerForm(${post.postId})">
-	                        Give Answer
-	                    </button>
-	                    <div id="answerForm-${post.postId}" style="display: none;" class="mt-3">
-	                        <textarea class="form-control mb-2" id="answerContent-${post.postId}" rows="2" placeholder="Your answer..."></textarea>
-	                        <button class="btn btn-sm btn-success" onclick="submitAnswer(${post.postId})">Submit Answer</button>
-	                    </div>
-	                    <div id="answers-${post.postId}" class="answers mt-3" style="display: none;">
-	                        ${post.answers.map(answer => `
-	                            <div class="answer">
-	                                <img src="${answer.profileImageUrl || '/api/placeholder/40/40'}" alt="${answer.userName}" class="user-avatar" style="width: 30px; height: 30px;">
-	                                <strong>${answer.userName}:</strong> ${answer.content}
-	                                <small class="d-block mt-1">Posted on ${formatDate(answer.createdDate)}</small>
-	                            </div>
-	                        `).join('')}
-	                    </div>
-	                </div>
-	            `;
+        <div class="post-header d-flex align-items-center">
+            <img src="${post.profileImageUrl || '/api/placeholder/40/40'}" alt="${post.userName}" class="user-avatar">
+            <div>
+                <h5 class="mb-0">${post.title}</h5>
+                <small>Posted by ${post.userName} on ${formatDate(post.createdDate)}</small>
+            </div>
+        </div>
+        <div class="post-content">
+            <p>${post.content}</p>
+        </div>
+        <div class="post-footer">
+            <button class="btn btn-sm btn-outline-secondary" onclick="toggleAnswers(${post.postId})">
+                Show Answers (${post.answers.length})
+            </button>
+            <button class="btn btn-sm btn-outline-primary" onclick="toggleAnswerForm(${post.postId})">
+                Give Answer
+            </button>
+            <div id="answerForm-${post.postId}" style="display: none;" class="mt-3">
+                <textarea class="form-control mb-2" id="answerContent-${post.postId}" rows="2" placeholder="Your answer..."></textarea>
+                <button class="btn btn-sm btn-success" onclick="submitAnswer(${post.postId})">Submit Answer</button>
+            </div>
+            <div id="answers-${post.postId}" class="answers mt-3" style="display: none;">
+                ${post.answers.map(answer => `
+                    <div class="answer">
+                        <img src="${answer.profileImageUrl || '/api/placeholder/40/40'}" alt="${answer.userName}" class="user-avatar" style="width: 30px; height: 30px;">
+                        <strong>${answer.userName}:</strong> ${answer.content}
+                        <small class="d-block mt-1">Posted on ${formatDate(answer.createdDate)}</small>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
 	return postElement;
 }
 
 // Function to display posts
-function displayPosts(posts) {
+async function displayPosts(posts) {
 	const forumPosts = document.getElementById('forumPosts');
 	forumPosts.innerHTML = ''; // Clear the existing posts
 	posts.forEach(post => {
@@ -102,11 +100,10 @@ async function submitAnswer(postId) {
 	};
 
 	try {
-		const response = await fetch(`/api/posts/${postId}/answers`, {
+		const response = await fetchWithToken(`/api/posts/${postId}/answers`, {
 			method: 'POST',
 			headers: {
-				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${getAccessToken()}`
+				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify(requestBody),
 		});
@@ -140,6 +137,7 @@ async function submitAnswer(postId) {
 	}
 }
 
+// Function to search posts
 async function searchPosts() {
 	const searchInput = document.getElementById('searchInput').value.trim();
 	if (!searchInput) {
@@ -149,11 +147,8 @@ async function searchPosts() {
 	}
 
 	try {
-		const response = await fetch(`/api/posts/search?title=${encodeURIComponent(searchInput)}`, {
-			method: 'GET',
-			headers: {
-				'Authorization': `Bearer ${getAccessToken()}`
-			},
+		const response = await fetchWithToken(`/api/posts/search?title=${encodeURIComponent(searchInput)}`, {
+			method: 'GET'
 		});
 
 		if (!response.ok) {
@@ -171,14 +166,14 @@ async function searchPosts() {
 // Function to load posts (without pagination)
 async function loadPosts() {
 	try {
-		const response = await fetch('/api/posts', {
-			headers: {
-				'Authorization': `Bearer ${getAccessToken()}`
-			}
+		const response = await fetchWithToken('/api/posts', {
+			method: 'GET'
 		});
+
 		if (!response.ok) {
 			throw new Error('Failed to fetch posts');
 		}
+
 		const posts = await response.json();
 		displayPosts(posts);
 	} catch (error) {

@@ -65,12 +65,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			filterChain.doFilter(request, response);
 		} catch (ExpiredJwtException e) {
 			handleException(response, HttpServletResponse.SC_UNAUTHORIZED, "JWT token has expired");
+			return; // Stop the filter chain
 		} catch (JwtException e) {
 			handleException(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token");
+			return; // Stop the filter chain
 		} catch (AuthenticationException e) {
 			handleException(response, HttpServletResponse.SC_UNAUTHORIZED, "Authentication failed");
+			return; // Stop the filter chain
 		} catch (Exception e) {
 			handleException(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An unexpected error occurred");
+			return; // Stop the filter chain
 		}
 	}
 

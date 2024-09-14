@@ -1,8 +1,4 @@
-// Function to get the access token (you need to implement this based on your authentication method)
-function getAccessToken() {
-	// For example, you might retrieve it from localStorage
-	return localStorage.getItem('accessToken');
-}
+// Import or include auth.js in your HTML to use fetchWithToken
 
 // Function to format date
 function formatDate(dateString) {
@@ -64,7 +60,7 @@ function toggleAnswers(postId) {
 	}
 }
 
-// Function to fetch posts
+// Function to fetch posts using fetchWithToken for token management
 async function fetchPosts() {
 	try {
 		const userId = localStorage.getItem('userId');
@@ -72,11 +68,7 @@ async function fetchPosts() {
 			throw new Error('User ID is not available');
 		}
 
-		const response = await fetch(`/api/posts/user/${userId}`, { // Use template literals to insert userId
-			headers: {
-				'Authorization': `Bearer ${getAccessToken()}`
-			}
-		});
+		const response = await fetchWithToken(`/api/posts/user/${userId}`); // Use fetchWithToken for automatic token handling
 
 		if (!response.ok) {
 			throw new Error('Failed to fetch posts');
@@ -91,7 +83,7 @@ async function fetchPosts() {
 	}
 }
 
-// Function to handle new post submission
+// Function to handle new post submission using fetchWithToken
 async function handleNewPost(event) {
 	event.preventDefault();
 	const title = document.getElementById('postTitle').value;
@@ -109,11 +101,10 @@ async function handleNewPost(event) {
 	};
 
 	try {
-		const response = await fetch('/api/posts', {
+		const response = await fetchWithToken('/api/posts', {
 			method: 'POST',
 			headers: {
-				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${getAccessToken()}`
+				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify(requestBody),
 		});
@@ -137,15 +128,12 @@ async function handleNewPost(event) {
 	}
 }
 
-// Function to handle post deletion
+// Function to handle post deletion using fetchWithToken
 async function deletePost(postId) {
 	if (confirm('Are you sure you want to delete this post?')) {
 		try {
-			const response = await fetch(`/api/posts/${postId}`, {
-				method: 'DELETE',
-				headers: {
-					'Authorization': `Bearer ${getAccessToken()}`
-				}
+			const response = await fetchWithToken(`/api/posts/${postId}`, {
+				method: 'DELETE'
 			});
 
 			if (!response.ok) {

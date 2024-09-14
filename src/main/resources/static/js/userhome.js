@@ -28,20 +28,13 @@
 	}
 });
 */
+
+
 document.addEventListener("DOMContentLoaded", async function() {
-	const accessToken = localStorage.getItem('accessToken');
-
-	if (!accessToken) {
-		alert("You are not authorized! Please log in.");
-		window.location.href = "/login";
-		return;
-	}
-
 	try {
-		const response = await fetch('/api/users/profile', {
+		const response = await fetchWithToken('/api/users/profile', {
 			method: 'GET',
 			headers: {
-				'Authorization': `Bearer ${accessToken}`,
 				'Content-Type': 'application/json'
 			}
 		});
@@ -51,8 +44,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 			displayUserProfile(profileData);
 		} else if (response.status === 401 || response.status === 403) {
 			alert("Unauthorized access. Please log in again.");
-			localStorage.removeItem('accessToken');
-			localStorage.removeItem('refreshToken');
+			clearTokens();
 			window.location.href = "/login";
 		} else {
 			const errorText = await response.text();

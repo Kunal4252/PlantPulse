@@ -14,6 +14,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.kunal.gardengenius.filter.JwtAuthenticationFilter;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -29,6 +31,11 @@ public class SecurityConfig {
 								"/api/users/logout", "/", "/register", "/login", "/userhome", "/communityPost",
 								"/plantidentification", "/post", "/js/**")
 						.permitAll().requestMatchers("/api/users/profile").authenticated().anyRequest().authenticated())
+				.exceptionHandling(exceptionHandling -> exceptionHandling
+						.authenticationEntryPoint((request, response, authException) -> {
+							response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+						}))
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
