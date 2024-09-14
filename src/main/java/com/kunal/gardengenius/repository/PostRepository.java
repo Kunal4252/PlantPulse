@@ -17,4 +17,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
 	@Query("SELECT p FROM Post p WHERE p.user.id = :userId ORDER BY p.createdDate DESC")
 	List<Post> findByUserIdOrderedByDateDesc(@Param("userId") Long userId);
+
+	@Query(value = "SELECT * FROM posts p WHERE REPLACE(LOWER(p.title), ' ', '') LIKE LOWER(CONCAT('%', REPLACE(:query, ' ', ''), '%'))", nativeQuery = true)
+	List<Post> searchByTitleIgnoringSpaces(@Param("query") String title);
 }

@@ -24,7 +24,7 @@ public class PostService {
 	// Method for searching posts by title
 	public List<Post> searchPostsByTitle(String title) {
 		// Assuming you have a repository method for searching posts by title
-		return postRepository.findByTitleContainingIgnoreCase(title);
+		return postRepository.searchByTitleIgnoringSpaces(title);
 	}
 
 	// Get all posts
