@@ -6,11 +6,14 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.kunal.gardengenius.entity.Post;
 import com.kunal.gardengenius.entity.User;
 import com.kunal.gardengenius.repository.PostRepository;
 import com.kunal.gardengenius.repository.UserRepository;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class PostService {
@@ -24,7 +27,7 @@ public class PostService {
 	// Method for searching posts by title
 	public List<Post> searchPostsByTitle(String title) {
 		// Assuming you have a repository method for searching posts by title
-		return postRepository.searchByTitleIgnoringSpaces(title);
+		return postRepository.searchByTitleAndOrderByLikes(title);
 	}
 
 	// Get all posts
@@ -59,5 +62,23 @@ public class PostService {
 		} else {
 			throw new IllegalArgumentException("User not found");
 		}
+	}
+
+	@Transactional
+	public void addLike(Long postId, Long userId) {
+		Post post = postRepository.findById(postId).orElseThrow(() -> new EntityNotFoundException("Post not found"));
+		User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+		post.getLikedBy().add(user);
+		postRepository.save(post);
+	}
+
+	@Transactional
+	public void removeLike(Long postId, Long userId) {
+		Post post = postRepository.findById(postId).orElseThrow(() -> new EntityNotFoundException("Post not found"));
+		User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+		post.getLikedBy().remove(user);
+		postRepository.save(post);
 	}
 }

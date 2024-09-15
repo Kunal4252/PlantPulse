@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,5 +40,15 @@ public class UserService {
 		Map uploadResult = cloudinary.uploader().upload(file.getBytes(), params);
 
 		return (String) uploadResult.get("secure_url");
+	}
+
+	public User getUserByUsername(String username) {
+		User user = repository.findByUsername(username);
+		if (user != null) {
+			return user; // Return the User object if found
+		} else {
+			throw new UsernameNotFoundException("User with username: " + username + " not found"); // Handle if no user
+																									// is found
+		}
 	}
 }

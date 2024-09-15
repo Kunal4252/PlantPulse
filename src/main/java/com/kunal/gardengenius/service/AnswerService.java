@@ -50,4 +50,30 @@ public class AnswerService {
 			throw new IllegalArgumentException("Post or User not found");
 		}
 	}
+
+	public void addLike(Long answerId, Long userId) {
+		Answer answer = answerRepository.findById(answerId)
+				.orElseThrow(() -> new IllegalArgumentException("Answer not found"));
+		User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+		if (answer.getLikes().contains(user)) {
+			throw new IllegalStateException("User has already liked this answer");
+		}
+
+		answer.getLikes().add(user);
+		answerRepository.save(answer);
+	}
+
+	public void removeLike(Long answerId, Long userId) {
+		Answer answer = answerRepository.findById(answerId)
+				.orElseThrow(() -> new IllegalArgumentException("Answer not found"));
+		User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+		if (!answer.getLikes().contains(user)) {
+			throw new IllegalStateException("User has not liked this answer");
+		}
+
+		answer.getLikes().remove(user);
+		answerRepository.save(answer);
+	}
 }

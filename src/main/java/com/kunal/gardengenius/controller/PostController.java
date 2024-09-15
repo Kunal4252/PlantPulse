@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.kunal.gardengenius.DTO.AnswerDTO;
 import com.kunal.gardengenius.DTO.PostCreationResponseDTO;
 import com.kunal.gardengenius.entity.Post;
+import com.kunal.gardengenius.entity.User;
 import com.kunal.gardengenius.service.PostService;
+import com.kunal.gardengenius.service.UserService;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -28,12 +32,16 @@ public class PostController {
 	@Autowired
 	private PostService postService;
 
+	@Autowired
+	private UserService userService;
+
 	// Get all posts
 	@GetMapping
-	public ResponseEntity<List<PostCreationResponseDTO>> getAllPosts() {
+	public ResponseEntity<List<PostCreationResponseDTO>> getAllPosts(@AuthenticationPrincipal UserDetails userDetails) {
 		try {
+			User currentUser = userService.getUserByUsername(userDetails.getUsername());
 			List<Post> posts = postService.getAllPosts();
-			List<PostCreationResponseDTO> response = posts.stream().map(this::convertToDTO) // Use convertToDTO method
+			List<PostCreationResponseDTO> response = posts.stream().map(post -> convertToDTO(post, currentUser.getId()))
 					.collect(Collectors.toList());
 			return ResponseEntity.ok(response);
 		} catch (Exception e) {
@@ -41,11 +49,12 @@ public class PostController {
 		}
 	}
 
+	// Get posts by user ID
 	@GetMapping("/user/{userId}")
 	public ResponseEntity<List<PostCreationResponseDTO>> getPostsByUserId(@PathVariable Long userId) {
 		try {
 			List<Post> posts = postService.getPostsByUserId(userId);
-			List<PostCreationResponseDTO> response = posts.stream().map(this::convertToDTO) // Use convertToDTO method
+			List<PostCreationResponseDTO> response = posts.stream().map(post -> convertToDTO(post, userId))
 					.collect(Collectors.toList());
 			return ResponseEntity.ok(response);
 		} catch (Exception e) {
@@ -53,6 +62,7 @@ public class PostController {
 		}
 	}
 
+	// Delete a post by ID
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> deletePost(@PathVariable Long id) {
 		try {
@@ -71,13 +81,11 @@ public class PostController {
 	@GetMapping("/search")
 	public ResponseEntity<List<PostCreationResponseDTO>> searchPosts(@RequestParam String title) {
 		try {
-			// Fetch all posts matching the search title without pagination
 			List<Post> posts = postService.searchPostsByTitle(title);
-
-			// Convert posts to DTOs using convertToDTO method
-			List<PostCreationResponseDTO> postDTOs = posts.stream().map(this::convertToDTO)
+			List<PostCreationResponseDTO> postDTOs = posts.stream().map(post -> convertToDTO(post, null)) // No current
+																											// user for
+																											// searching
 					.collect(Collectors.toList());
-
 			return ResponseEntity.ok(postDTOs);
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
@@ -86,31 +94,62 @@ public class PostController {
 
 	// Create a post
 	@PostMapping
-	public ResponseEntity<PostCreationResponseDTO> createPost(@RequestBody Post post) {
+	public ResponseEntity<PostCreationResponseDTO> createPost(@RequestBody Post post,
+			@AuthenticationPrincipal UserDetails userDetails) {
 		try {
+			User currentUser = userService.getUserByUsername(userDetails.getUsername());
+			post.setUser(currentUser); // Set the user as the creator of the post
 			Post createdPost = postService.createPost(post);
-			PostCreationResponseDTO response = convertToDTO(createdPost); // Use convertToDTO method
+			PostCreationResponseDTO response = convertToDTO(createdPost, currentUser.getId());
 			return ResponseEntity.ok(response);
 		} catch (IllegalArgumentException e) {
 			return ResponseEntity.badRequest().body(null);
 		}
 	}
 
-	private PostCreationResponseDTO convertToDTO(Post post) {
-		return new PostCreationResponseDTO(post.getId(), // postId
-				post.getTitle(), // title
-				post.getContent(), // content
-				post.getCreatedDate(), // createdDate
-				post.getUser() != null ? post.getUser().getId() : null, // userId
-				post.getUser() != null ? post.getUser().getUsername() : null, // userName
-				post.getUser() != null ? post.getUser().getProfileImageUrl() : null, // profileImageUrl
-				post.getAnswers() != null ? post.getAnswers().stream() // answers (map Answer to AnswerDTO)
-						.map(answer -> new AnswerDTO(answer.getId(), answer.getContent(), answer.getCreatedDate(),
-								answer.getUser() != null ? answer.getUser().getId() : null, // userId of answer
-								answer.getUser() != null ? answer.getUser().getUsername() : null, // userName of answer
-								answer.getUser() != null ? answer.getUser().getProfileImageUrl() : null // profileImageUrl
-																										// of answer
-						)).collect(Collectors.toList()) : Collections.emptyList() // Handle null or empty answers
-		);
+	// Like a post
+	@PostMapping("/{postId}/like")
+	public ResponseEntity<Void> likePost(@PathVariable Long postId, @AuthenticationPrincipal UserDetails userDetails) {
+		try {
+			User currentUser = userService.getUserByUsername(userDetails.getUsername());
+			postService.addLike(postId, currentUser.getId());
+			return ResponseEntity.ok().build();
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+
+	// Unlike a post
+	@DeleteMapping("/{postId}/like")
+	public ResponseEntity<Void> unlikePost(@PathVariable Long postId,
+			@AuthenticationPrincipal UserDetails userDetails) {
+		try {
+			User currentUser = userService.getUserByUsername(userDetails.getUsername());
+			postService.removeLike(postId, currentUser.getId());
+			return ResponseEntity.ok().build();
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
+	}
+
+	// Helper method to convert a Post to PostCreationResponseDTO
+	private PostCreationResponseDTO convertToDTO(Post post, Long currentUserId) {
+		List<AnswerDTO> sortedAnswers = post.getAnswers() != null ? post.getAnswers().stream()
+				.sorted((a1, a2) -> Integer.compare(a2.getLikes().size(), a1.getLikes().size()))
+				.map(answer -> new AnswerDTO(answer.getId(), answer.getContent(), answer.getCreatedDate(),
+						answer.getUser() != null ? answer.getUser().getId() : null,
+						answer.getUser() != null ? answer.getUser().getUsername() : null,
+						answer.getUser() != null ? answer.getUser().getProfileImageUrl() : null,
+						answer.getLikes().size(),
+						currentUserId != null
+								&& answer.getLikes().stream().anyMatch(user -> user.getId().equals(currentUserId))))
+				.collect(Collectors.toList()) : Collections.emptyList();
+
+		return new PostCreationResponseDTO(post.getId(), post.getTitle(), post.getContent(), post.getCreatedDate(),
+				post.getUser() != null ? post.getUser().getId() : null,
+				post.getUser() != null ? post.getUser().getUsername() : null,
+				post.getUser() != null ? post.getUser().getProfileImageUrl() : null, sortedAnswers,
+				post.getLikedBy().size(), currentUserId != null
+						&& post.getLikedBy().stream().anyMatch(user -> user.getId().equals(currentUserId)));
 	}
 }

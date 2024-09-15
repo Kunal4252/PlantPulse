@@ -20,5 +20,7 @@ public class PostCreationResponseDTO {
 	private String userName;
 	private String profileImageUrl;
 	private List<AnswerDTO> answers;
+	private int likeCount;
+	private boolean likedByCurrentUser;
 
 }

@@ -7,6 +7,19 @@ function formatDate(dateString) {
 	return new Date(dateString).toLocaleDateString('en-US', options);
 }
 
+function createAnswerElement(answer, postId) {
+	return `
+        <div class="answer" data-answer-id="${answer.id}">
+            <img src="${answer.profileImageUrl || '/api/placeholder/40/40'}" alt="${answer.userName}" class="user-avatar" style="width: 30px; height: 30px;">
+            <strong>${answer.userName}:</strong> ${answer.content}
+            <small class="d-block mt-1">Posted on ${formatDate(answer.createdDate)}</small>
+            <button class="btn btn-sm btn-outline-success greenify-btn answer-like-btn" onclick="toggleAnswerLike(${postId}, ${answer.id})" title="Greenify this answer">
+                <i class="fas fa-leaf"></i> Greenify
+                <span class="like-count">${answer.likeCount || 0}</span>
+            </button>
+        </div>
+    `;
+}
 // Function to create a post element
 function createPostElement(post) {
 	const postElement = document.createElement('div');
@@ -29,18 +42,16 @@ function createPostElement(post) {
             <button class="btn btn-sm btn-outline-primary" onclick="toggleAnswerForm(${post.postId})">
                 Give Answer
             </button>
+            <button class="btn btn-sm btn-outline-success greenify-btn" onclick="togglePostLike(${post.postId})" title="Greenify this post">
+                <i class="fas fa-leaf"></i> Greenify
+                <span class="like-count">${post.likeCount || 0}</span>
+            </button>
             <div id="answerForm-${post.postId}" style="display: none;" class="mt-3">
                 <textarea class="form-control mb-2" id="answerContent-${post.postId}" rows="2" placeholder="Your answer..."></textarea>
                 <button class="btn btn-sm btn-success" onclick="submitAnswer(${post.postId})">Submit Answer</button>
             </div>
             <div id="answers-${post.postId}" class="answers mt-3" style="display: none;">
-                ${post.answers.map(answer => `
-                    <div class="answer">
-                        <img src="${answer.profileImageUrl || '/api/placeholder/40/40'}" alt="${answer.userName}" class="user-avatar" style="width: 30px; height: 30px;">
-                        <strong>${answer.userName}:</strong> ${answer.content}
-                        <small class="d-block mt-1">Posted on ${formatDate(answer.createdDate)}</small>
-                    </div>
-                `).join('')}
+                ${post.answers.map(answer => createAnswerElement(answer, post.postId)).join('')}
             </div>
         </div>
     `;
@@ -75,6 +86,72 @@ function toggleAnswerForm(postId) {
 		console.error('Answer form not found.');
 	}
 }
+
+async function togglePostLike(postId) {
+	await toggleLike(postId, 'post');
+}
+
+// Function to toggle answer like
+async function toggleAnswerLike(postId, answerId) {
+	await toggleLike(answerId, 'answer', postId);
+}
+
+// Generic function to toggle like for both posts and answers
+// Generic function to toggle like for both posts and answers
+async function toggleLike(id, type, postId = null) {
+	try {
+		// Validate type
+		if (!['post', 'answer'].includes(type)) {
+			throw new Error(`Invalid type: ${type}`);
+		}
+
+		// Construct the selector string based on type
+		const selector = type === 'post'
+			? `[onclick="togglePostLike(${id})"]`
+			: `[onclick="toggleAnswerLike(${postId}, ${id})"]`;
+
+		console.log(`Selector used: ${selector}`);
+
+		// Select the like button based on the constructed selector
+		const likeButton = document.querySelector(selector);
+		if (!likeButton) {
+			console.error(`Like button not found for ${type} with id ${id}`);
+			return;
+		}
+
+		const likeCount = likeButton.querySelector('.like-count');
+		if (!likeCount) {
+			console.error('Like count element not found.');
+			return;
+		}
+
+		const isLiked = likeButton.classList.contains('liked');
+		const method = isLiked ? 'DELETE' : 'POST';
+		const endpoint = type === 'post'
+			? `/api/posts/${id}/like`
+			: `/api/posts/${postId}/answers/${id}/like`;
+		const response = await fetchWithToken(endpoint, { method });
+
+		if (!response.ok) {
+			throw new Error(`Failed to ${isLiked ? 'unlike' : 'like'} ${type}. Status: ${response.status}`);
+		}
+
+		// Toggle the liked state
+		likeButton.classList.toggle('liked');
+
+		// Update the like count
+		const currentCount = parseInt(likeCount.textContent, 10);
+		likeCount.textContent = isLiked ? currentCount - 1 : currentCount + 1;
+
+		// Update the button title
+		likeButton.title = isLiked ? `Greenify this ${type}` : `Un-greenify this ${type}`;
+
+	} catch (error) {
+		console.error(`Error toggling ${type} like:`, error);
+		alert(`Failed to update ${type} like status. Please try again later.`);
+	}
+}
+
 
 // Function to submit an answer
 async function submitAnswer(postId) {
@@ -176,6 +253,23 @@ async function loadPosts() {
 
 		const posts = await response.json();
 		displayPosts(posts);
+
+		// Set initial state of like buttons for posts and answers
+		posts.forEach(post => {
+			const postLikeButton = document.querySelector(`[onclick="togglePostLike(${post.postId})"]`);
+			if (postLikeButton && post.likedByCurrentUser) {
+				postLikeButton.classList.add('liked');
+				postLikeButton.title = 'Un-greenify this post';
+			}
+
+			post.answers.forEach(answer => {
+				const answerLikeButton = document.querySelector(`[onclick="toggleAnswerLike(${post.postId}, ${answer.id})"]`);
+				if (answerLikeButton && answer.likedByCurrentUser) {
+					answerLikeButton.classList.add('liked');
+					answerLikeButton.title = 'Un-greenify this answer';
+				}
+			});
+		});
 	} catch (error) {
 		console.error('Error loading posts:', error);
 		alert('Failed to load posts. Please try again later.');
