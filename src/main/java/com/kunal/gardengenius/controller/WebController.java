@@ -11,14 +11,14 @@ public class WebController {
 		return "home"; // This will resolve to src/main/resources/templates/home.html
 	}
 
-	@GetMapping("/register")
+	@GetMapping("/signUp")
 	public String register() {
-		return "register"; // This will resolve to src/main/resources/templates/home.html
+		return "signUp"; // This will resolve to src/main/resources/templates/home.html
 	}
 
-	@GetMapping("/login")
+	@GetMapping("/signIn")
 	public String login() {
-		return "login"; // This will resolve to src/main/resources/templates/home.html
+		return "signIn"; // This will resolve to src/main/resources/templates/home.html
 	}
 
 	@GetMapping("/userhome")

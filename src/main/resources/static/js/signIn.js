@@ -1,6 +1,7 @@
-document.getElementById("loginForm").addEventListener("submit", async function(event) {
-	event.preventDefault();
+document.getElementById('signinForm').addEventListener('submit', async function(e) {
+	e.preventDefault();
 
+	// `this` refers to the form element here
 	const formData = new FormData(this);
 
 	try {
@@ -15,7 +16,6 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
 			// Save tokens to local storage
 			localStorage.setItem('accessToken', data.accessToken);
 			localStorage.setItem('refreshToken', data.refreshToken);
-			
 
 			// Redirect to user home page
 			window.location.href = "/userhome";
@@ -24,6 +24,6 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
 			throw new Error(errorText);
 		}
 	} catch (error) {
-		document.getElementById("loginMessage").innerText = "Login failed: " + error.message; // Display an error message if login fails
+		alert("Sign in failed: " + error.message); // Display an error message if login fails
 	}
 });

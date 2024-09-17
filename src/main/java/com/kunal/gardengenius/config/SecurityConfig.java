@@ -28,7 +28,7 @@ public class SecurityConfig {
 		http.csrf().disable()
 				.authorizeHttpRequests(authorize -> authorize
 						.requestMatchers("/api/users/register", "/api/users/login", "/api/users/refresh",
-								"/api/users/logout", "/", "/register", "/login", "/userhome", "/communityPost",
+								"/api/users/logout", "/", "/signUp", "/signIn", "/userhome", "/communityPost",
 								"/plantidentification", "/post", "/js/**")
 						.permitAll().requestMatchers("/api/users/profile").authenticated().anyRequest().authenticated())
 				.exceptionHandling(exceptionHandling -> exceptionHandling
