@@ -1,6 +1,5 @@
 package com.kunal.gardengenius.entity;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -63,14 +62,4 @@ public class User {
 	@ToString.Exclude
 	private List<AuthToken> authTokens;
 
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	@ToString.Exclude
-	private List<Garden> gardens;
-
-	// Feedback fields
-	@Column(nullable = true)
-	private String feedbackContent;
-
-	@Column(nullable = true)
-	private LocalDateTime feedbackCreatedDate;
 }

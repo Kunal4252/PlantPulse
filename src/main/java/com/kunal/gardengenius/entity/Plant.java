@@ -1,16 +1,9 @@
 package com.kunal.gardengenius.entity;
 
-import java.time.LocalDateTime;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Index;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,10 +11,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table(name = "plants", indexes = { @Index(name = "idx_plant_name", columnList = "name"),
-		@Index(name = "idx_plant_species", columnList = "species"),
-		@Index(name = "idx_plant_soil_type", columnList = "soilType"),
-		@Index(name = "idx_plant_sunlight_requirement", columnList = "sunlightRequirement") })
+@Table(name = "plants")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -30,25 +20,72 @@ import lombok.ToString;
 public class Plant {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private Integer id;
 
-	@Column(nullable = false)
 	private String name;
 
-	@Column(nullable = false)
-	private String species;
+	@Column(name = "scientific_name")
+	private String scientificName;
 
-	@Column(nullable = false)
-	private LocalDateTime plantedDate;
+	@Column(name = "alternative_names")
+	private String alternativeNames;
 
-	@Column(nullable = false)
-	private String soilType;
+	private String family;
 
-	@Column(nullable = false)
-	private String sunlightRequirement;
+	private String genus;
 
-	@ManyToOne
-	@JoinColumn(name = "garden_id", nullable = false)
-	private Garden garden;
+	@Column(columnDefinition = "TEXT")
+	private String description;
+
+	@Column(columnDefinition = "TEXT")
+	private String sunlight;
+
+	@Column(columnDefinition = "TEXT")
+	private String soil;
+
+	@Column(columnDefinition = "TEXT")
+	private String temperature;
+
+	@Column(name = "watering_conditions", columnDefinition = "TEXT")
+	private String wateringConditions;
+
+	@Column(name = "sowing_depth", columnDefinition = "TEXT")
+	private String sowingDepth;
+
+	@Column(name = "spacing_between_plants", columnDefinition = "TEXT")
+	private String spacingBetweenPlants;
+
+	@Column(name = "spacing_between_rows", columnDefinition = "TEXT")
+	private String spacingBetweenRows;
+
+	@Column(name = "watering_instructions", columnDefinition = "TEXT")
+	private String wateringInstructions;
+
+	@Column(name = "fertilizing_instructions", columnDefinition = "TEXT")
+	private String fertilizingInstructions;
+
+	@Column(name = "pruning_instructions", columnDefinition = "TEXT")
+	private String pruningInstructions;
+
+	@Column(name = "days_to_maturity", columnDefinition = "TEXT")
+	private String daysToMaturity;
+
+	@Column(name = "harvest_season", columnDefinition = "TEXT")
+	private String harvestSeason;
+
+	@Column(name = "harvest_method", columnDefinition = "TEXT")
+	private String harvestMethod;
+
+	@Column(columnDefinition = "TEXT")
+	private String pests;
+
+	@Column(columnDefinition = "TEXT")
+	private String diseases;
+
+	@Column(name = "companion_plants", columnDefinition = "TEXT")
+	private String companionPlants;
+
+	@Column(columnDefinition = "TEXT")
+	private String notes;
+
 }
