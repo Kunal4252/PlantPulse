@@ -29,7 +29,7 @@ public class SecurityConfig {
 				.authorizeHttpRequests(authorize -> authorize
 						.requestMatchers("/api/users/register", "/api/users/login", "/api/users/refresh",
 								"/api/users/logout", "/", "/signUp", "/signIn", "/userhome", "/communityPost",
-								"/plantidentification", "/post", "/js/**")
+								"/plantidentification", "/plantsearch", "/post", "/js/**")
 						.permitAll().requestMatchers("/api/users/profile").authenticated().anyRequest().authenticated())
 				.exceptionHandling(exceptionHandling -> exceptionHandling
 						.authenticationEntryPoint((request, response, authException) -> {

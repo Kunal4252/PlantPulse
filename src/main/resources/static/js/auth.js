@@ -46,7 +46,7 @@ async function refreshAccessToken() {
 	} else {
 		console.error('Failed to refresh token. Redirecting to login...');
 		clearTokens();
-		window.location.href = '/login'; // Redirect to login page
+		window.location.href = '/signIn'; // Redirect to login page
 		return null;
 	}
 }
@@ -84,7 +84,7 @@ async function fetchWithToken(url, options = {}) {
 // Logout function: clear tokens and redirect to login
 function logout() {
 	clearTokens();
-	window.location.href = '/login';
+	window.location.href = '/signIn';
 }
 
 

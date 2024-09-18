@@ -30,15 +30,20 @@ public class WebController {
 	public String communityPage() {
 		return "communityPost";
 	}
-	
+
 	@GetMapping("/post")
 	public String postPage() {
 		return "post";
 	}
-	
+
 	@GetMapping("/plantidentification")
 	public String plantIdentification() {
 		return "plantidentification";
+	}
+
+	@GetMapping("/plantsearch")
+	public String plantSearch() {
+		return "plantsearch";
 	}
 
 }
