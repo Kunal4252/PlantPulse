@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PlantDTO {
+public class PlantDetailDTO {
 	private Integer id;
 	private String name;
 	private String scientificName;

@@ -3,6 +3,7 @@ package com.kunal.gardengenius.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +12,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table(name = "plants")
+@Table(name = "plants", indexes = { @Index(name = "idx_plant_name", columnList = "name"),
+		@Index(name = "idx_plant_alternative_names", columnList = "alternative_names") })
 @Getter
 @Setter
 @NoArgsConstructor
@@ -87,5 +89,4 @@ public class Plant {
 
 	@Column(columnDefinition = "TEXT")
 	private String notes;
-
 }
