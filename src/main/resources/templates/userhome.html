@@ -3,97 +3,84 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Green Haven - Your Personalized Garden Home</title>
+<title>GardenGenius - Your Personal Garden Hub</title>
 <link
-	href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css"
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
 	rel="stylesheet">
 <link
-	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+	href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
 	rel="stylesheet">
 <style>
 body {
-	background-color: #f0f8ea;
-	font-family: 'Arial', sans-serif;
+	font-family: 'Poppins', sans-serif;
+	background-color: #e8f5e9;
+	background-image:
+		url("data:image/svg+xml,%3Csvg width='52' height='26' viewBox='0 0 52 26' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2381c784' fill-opacity='0.4'%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
 .navbar {
-	background-color: #2c5e1a;
+	background-color: #4caf50;
 }
 
 .navbar-brand, .nav-link {
-	color: #ffffff !important;
+	color: white !important;
 }
 
-.user-profile {
-	display: flex;
-	align-items: center;
-	cursor: pointer;
-}
-
-.user-profile img {
-	width: 40px;
-	height: 40px;
-	border-radius: 50%;
-	margin-right: 10px;
-}
-
-.profile-details {
-	position: fixed;
-	right: -300px;
-	top: 0;
-	width: 300px;
-	height: 100%;
-	background-color: #ffffff;
-	box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
-	transition: right 0.3s ease;
-	z-index: 1000;
+.feature-card {
+	background-color: white;
+	border-radius: 15px;
 	padding: 20px;
+	margin-bottom: 20px;
+	transition: transform 0.2s, box-shadow 0.2s;
+	height: 100%;
 }
 
-.profile-details.show {
-	right: 0;
+.feature-card:hover {
+	transform: translateY(-5px);
+	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-.close-profile {
-	position: absolute;
-	top: 10px;
-	left: 10px;
-	cursor: pointer;
+.feature-icon {
+	font-size: 2rem;
+	color: #4caf50;
+	margin-bottom: 10px;
 }
 
-.content-section {
-	background-color: #ffffff;
-	border-radius: 8px;
-	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.profile-section {
+	background-color: white;
+	border-radius: 15px;
 	padding: 20px;
 	margin-bottom: 20px;
 }
 
+.profile-picture {
+	width: 100px;
+	height: 100px;
+	border-radius: 50%;
+	object-fit: cover;
+}
+
+.username {
+	color: #4caf50;
+	font-weight: 600;
+	cursor: pointer;
+}
+
 .btn-success {
-	background-color: #4a8f29;
-	border-color: #4a8f29;
+	background-color: #4caf50;
+	border-color: #4caf50;
 }
 
 .btn-success:hover {
-	background-color: #3a7a1a;
-	border-color: #3a7a1a;
-}
-
-.forum-post {
-	border-bottom: 1px solid #e0e0e0;
-	padding: 10px 0;
-}
-
-.forum-post:last-child {
-	border-bottom: none;
+	background-color: #45a049;
+	border-color: #45a049;
 }
 </style>
 </head>
 <body>
-	<nav class="navbar navbar-expand-lg navbar-dark bg-success">
+	<nav class="navbar navbar-expand-lg navbar-dark">
 		<div class="container">
-			<a class="navbar-brand" href="#"><i class="fas fa-leaf mr-2"></i>
-				Green Haven</a>
+			<a class="navbar-brand" href="#">GardenGenius</a>
 			<button class="navbar-toggler" type="button"
 				data-bs-toggle="collapse" data-bs-target="#navbarNav"
 				aria-controls="navbarNav" aria-expanded="false"
@@ -101,130 +88,81 @@ body {
 				<span class="navbar-toggler-icon"></span>
 			</button>
 			<div class="collapse navbar-collapse" id="navbarNav">
-				<ul class="navbar-nav me-auto">
-					<li class="nav-item"><a class="nav-link" href="/userhome"><i
-							class="fas fa-home"></i> Home</a></li>
-					<li class="nav-item"><a class="nav-link" href="/post"><i
-							class="fas fa-comments"></i> Post</a></li>
-					<li class="nav-item"><a class="nav-link" href="/communityPost"><i
-							class="fas fa-home"></i> Community Post</a></li>
+				<ul class="navbar-nav ms-auto">
 					<li class="nav-item"><a class="nav-link active"
-						href="/plantidentification"><i class="fas fa-seedling"></i>
-							Plant Identifier</a></li>
-					<li class="nav-item"><a class="nav-link active"
-						href="/plantsearch"><i class="fas fa-seedling"></i> Grow Wise
-							Advisor</a></li>
+						aria-current="page" href="#">Home</a></li>
+					<li class="nav-item"><a class="nav-link" href="#"
+						id="logoutBtn">Logout</a></li>
 				</ul>
-				<div class="user-profile" id="userProfile">
-					<img src="/api/placeholder/40/40" alt="User Profile"
-						id="userProfilePic" class="profile-image"> <span
-						id="userProfileName">Loading...</span>
-				</div>
 			</div>
 		</div>
 	</nav>
 
-	<div class="profile-details" id="profileDetails">
-		<div class="close-profile" onclick="toggleProfileDetails()">
-			<i class="fas fa-times"></i>
-		</div>
-		<h4>Profile Details</h4>
-		<img src="/api/placeholder/100/100" alt="User Profile"
-			class="mb-3 profile-image"
-			style="width: 100px; height: 100px; border-radius: 50%;">
-		<p>
-			<strong>First Name:</strong> <span id="profileFirstName"></span>
-		</p>
-		<p>
-			<strong>Last Name:</strong> <span id="profileLastName"></span>
-		</p>
-		<p>
-			<strong>Username:</strong> <span id="profileUsername"></span>
-		</p>
-		<p>
-			<strong>Email:</strong> <span id="profileEmail"></span>
-		</p>
-		<p>
-			<strong>Phone Number:</strong> <span id="profilePhoneNumber"></span>
-		</p>
-		<p>
-			<strong>Address:</strong> <span id="profileAddress"></span>
-		</p>
-	</div>
-
-	<div class="container mt-5">
+	<main class="container mt-5">
 		<div class="row">
-			<div class="col-md-8">
-				<div class="content-section">
-					<h2>
-						Welcome back, <span id="welcomeName">Gardener</span>!
-					</h2>
-					<p>Here's what's happening in your garden today:</p>
-					<ul id="gardenUpdates">
-						<li>Your tomatoes are ready for harvest</li>
-						<li>Time to water your herb garden</li>
-						<li>New pest control tip available for roses</li>
-					</ul>
-				</div>
-			</div>
 			<div class="col-md-4">
-				<div class="content-section">
-					<h3>Recent Activity</h3>
-					<ul class="list-group list-group-flush" id="activityList">
-						<li class="list-group-item">Pruned the rose bushes</li>
-						<li class="list-group-item">Added compost to vegetable beds</li>
-						<li class="list-group-item">Planted new sunflower seeds</li>
-						<li class="list-group-item">Installed drip irrigation system</li>
-					</ul>
+				<div class="profile-section text-center">
+					<img src="/placeholder.svg?height=100&width=100"
+						alt="Profile Picture" class="profile-picture mb-3">
+					<h2 class="username" id="username">JohnDoe</h2>
+					<button class="btn btn-success mt-3"
+						onclick="location.href='/editprofile'">Edit Profile</button>
+				</div>
+			</div>
+			<div class="col-md-8">
+				<h1 class="mb-4">Welcome to Your Garden Hub</h1>
+				<div class="row">
+					<div class="col-md-6 mb-4">
+						<div class="feature-card">
+							<div class="feature-icon">🌿</div>
+							<h3>Grow Wise Advisor</h3>
+							<p>Search for plants and get detailed care instructions.</p>
+							<a href="grow-wise-advisor.html" class="btn btn-success">Explore
+								Plants</a>
+						</div>
+					</div>
+					<div class="col-md-6 mb-4">
+						<div class="feature-card">
+							<div class="feature-icon">🔍</div>
+							<h3>Plant Identifier</h3>
+							<p>Identify plants by uploading an image of the plant or
+								leaf.</p>
+							<a href="plant-identifier.html" class="btn btn-success">Identify
+								Plants</a>
+						</div>
+					</div>
+					<div class="col-md-6 mb-4">
+						<div class="feature-card">
+							<div class="feature-icon">💬</div>
+							<h3>Community Forum</h3>
+							<p>Join discussions, ask questions, and share your gardening
+								knowledge.</p>
+							<a href="community-forum.html" class="btn btn-success">Join
+								Discussions</a>
+						</div>
+					</div>
+					<div class="col-md-6 mb-4">
+						<div class="feature-card">
+							<div class="feature-icon">📝</div>
+							<h3>My Posts</h3>
+							<p>Manage your forum posts and contributions.</p>
+							<a href="my-posts.html" class="btn btn-success">Manage Posts</a>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
+	</main>
 
-		<div class="row mt-5" id="forum">
-			<div class="col-12">
-				<div class="content-section">
-					<h2>Community Forum</h2>
-					<div class="forum-post">
-						<h4>Tips for Growing Organic Tomatoes</h4>
-						<p>by GreenThumb123</p>
-						<p>Here are some of my best tips for growing delicious organic
-							tomatoes...</p>
-					</div>
-					<div class="forum-post">
-						<h4>Help! My roses have black spots</h4>
-						<p>by RoseEnthusiast</p>
-						<p>I've noticed black spots on my rose leaves. What could be
-							causing this and how can I treat it?</p>
-					</div>
-					<div class="forum-post">
-						<h4>Composting 101: Getting Started</h4>
-						<p>by EcoWarrior</p>
-						<p>New to composting? Here's a beginner's guide to get you
-							started on your composting journey...</p>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<footer class="bg-dark text-white text-center py-3 mt-5">
-		<p>&copy; 2024 Green Haven. All rights reserved.</p>
+	<footer class="bg-light text-center text-lg-start mt-5">
+		<div class="text-center p-3"
+			style="background-color: rgba(0, 0, 0, 0.2);">© 2023
+			GardenGenius. All rights reserved.</div>
 	</footer>
 
 	<script
-		src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 	<script src="/js/auth.js"></script>
 	<script src="/js/userhome.js"></script>
-	<script>
-		function toggleProfileDetails() {
-			const profileDetails = document.getElementById('profileDetails');
-			profileDetails.classList.toggle('show');
-		}
-
-		document.getElementById('userProfile').addEventListener('mouseenter',
-				toggleProfileDetails);
-		document.getElementById('profileDetails').addEventListener(
-				'mouseleave', toggleProfileDetails);
-	</script>
 </body>
 </html>

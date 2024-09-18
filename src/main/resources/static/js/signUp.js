@@ -27,8 +27,8 @@ document.getElementById("signupForm").addEventListener("submit", function(event)
 	})
 		.then(response => {
 			if (response.ok) {
-				alert("Registration successful! Redirecting to login...");
-				window.location.href = "/login"; // Redirect to the login page on success
+				alert("Registration successful! Redirecting to signIn...");
+				window.location.href = "/signIn"; // Redirect to the login page on success
 			} else {
 				return response.text().then(text => { throw new Error(text) });
 			}

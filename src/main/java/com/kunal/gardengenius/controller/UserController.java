@@ -9,10 +9,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -205,4 +209,79 @@ public class UserController {
 		}
 	}
 
+	@PutMapping("/profile")
+	public ResponseEntity<String> updateProfile(Authentication authentication, @ModelAttribute User updatedUser,
+			@RequestParam(required = false) MultipartFile profileImage) {
+		try {
+			String currentUsername = authentication.getName();
+			User currentUser = repository.findByUsername(currentUsername);
+			if (currentUser == null) {
+				throw new IllegalArgumentException("User not found");
+			}
+
+			// Check if email is being changed and if it's already in use
+			if (!currentUser.getEmail().equals(updatedUser.getEmail())) {
+				Optional<User> existingUser = repository.findByEmail(updatedUser.getEmail());
+				if (existingUser.isPresent()) {
+					throw new IllegalArgumentException("Email already in use: " + updatedUser.getEmail());
+				}
+			}
+
+			// Handle profile image upload
+			if (profileImage != null && !profileImage.isEmpty()) {
+				String imageUrl = service.uploadProfileImage(profileImage);
+				updatedUser.setProfileImageUrl(imageUrl);
+			} else {
+				// Keep the existing profile image URL if no new image is uploaded
+				updatedUser.setProfileImageUrl(currentUser.getProfileImageUrl());
+			}
+
+			// Update user details
+			updatedUser.setId(currentUser.getId()); // Ensure we're updating the correct user
+
+			updatedUser.setPassword(currentUser.getPassword()); // Retain the current password
+
+			service.updateUser(updatedUser);
+
+			return ResponseEntity.ok("Profile updated successfully!");
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+		} catch (IOException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("Error uploading profile image: " + e.getMessage());
+		}
+	}
+
+	@DeleteMapping("/profile/image")
+	public ResponseEntity<?> removeProfileImage(@AuthenticationPrincipal UserDetails userDetails) throws IOException {
+		String username = userDetails.getUsername();
+		User user = repository.findByUsername(username);
+		if (user == null) {
+			throw new IllegalArgumentException("User not found");
+		}
+		if (user.getProfileImageUrl() != null) {
+			// Extract public ID from Cloudinary URL
+			String publicId = extractPublicIdFromUrl(user.getProfileImageUrl());
+			service.deleteImage(publicId);
+
+			user.setProfileImageUrl(null);
+			service.updateUserProfile(username, user);
+		}
+
+		return ResponseEntity.ok().build();
+	}
+
+	private String extractPublicIdFromUrl(String imageUrl) {
+		// This method should extract the public ID from the Cloudinary URL
+		// The implementation depends on the format of your Cloudinary URLs
+		// For example:
+		// "https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/abcdef.jpg"
+		// The public ID would be "abcdef"
+		// You might need to use regex or string manipulation to extract this
+
+		// This is a simplified example:
+		String[] parts = imageUrl.split("/");
+		String fileName = parts[parts.length - 1];
+		return fileName.substring(0, fileName.lastIndexOf('.'));
+	}
 }
