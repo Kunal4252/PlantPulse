@@ -1,6 +1,17 @@
 // Function to get the access token (now handled by fetchWithToken)
 
+document.addEventListener('DOMContentLoaded', function() {
+	const searchForm = document.getElementById('searchForm');
+	const searchInput = document.getElementById('searchInput');
 
+	searchForm.addEventListener('submit', function(e) {
+		e.preventDefault(); // Prevent the form from submitting normally
+		searchPosts();
+	});
+
+	// Load posts on page load
+	loadPosts();
+});
 // Function to format date
 function formatDate(dateString) {
 	const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
@@ -59,9 +70,13 @@ function createPostElement(post) {
 }
 
 // Function to display posts
-async function displayPosts(posts) {
+function displayPosts(posts) {
 	const forumPosts = document.getElementById('forumPosts');
 	forumPosts.innerHTML = ''; // Clear the existing posts
+	if (posts.length === 0) {
+		forumPosts.innerHTML = '<p>No posts found matching your search.</p>';
+		return;
+	}
 	posts.forEach(post => {
 		forumPosts.appendChild(createPostElement(post));
 	});
@@ -218,8 +233,7 @@ async function submitAnswer(postId) {
 async function searchPosts() {
 	const searchInput = document.getElementById('searchInput').value.trim();
 	if (!searchInput) {
-		// If search input is empty, you might want to show all posts or clear results
-		await loadPosts(); // Load all posts
+		await loadPosts(); // Load all posts if search input is empty
 		return;
 	}
 
@@ -233,7 +247,7 @@ async function searchPosts() {
 		}
 
 		const posts = await response.json();
-		displayPosts(posts); // Directly use the array of posts
+		displayPosts(posts);
 	} catch (error) {
 		console.error('Error searching posts:', error);
 		alert('Failed to search posts. Please try again later.');

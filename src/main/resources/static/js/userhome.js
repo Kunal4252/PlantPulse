@@ -12,6 +12,12 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 		if (response.ok) {
 			const profileData = await response.json();
+
+
+			const userId = profileData.id;
+
+			// Save userId to localStorage
+			localStorage.setItem('userId', userId);
 			displayUserProfile(profileData);
 		} else if (response.status === 401 || response.status === 403) {
 			// Unauthorized or Forbidden access

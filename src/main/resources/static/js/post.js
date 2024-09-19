@@ -156,9 +156,11 @@ async function handleNewPost(event) {
 	const title = document.getElementById('postTitle').value;
 	const content = document.getElementById('postContent').value;
 
+
+
 	const requestBody = {
 		title: title,
-		content: content,
+		content: content
 	};
 
 	try {
@@ -178,6 +180,13 @@ async function handleNewPost(event) {
 
 		// Clear the form
 		document.getElementById('newPostForm').reset();
+
+		// Close the modal
+		const createPostModal = bootstrap.Modal.getInstance(document.getElementById('createPostModal'));
+		if (createPostModal) {
+			createPostModal.hide();
+		}
+
 
 		// Display the new post
 		const forumPosts = document.getElementById('forumPosts');

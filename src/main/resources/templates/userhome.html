@@ -90,7 +90,7 @@ body {
 			<div class="collapse navbar-collapse" id="navbarNav">
 				<ul class="navbar-nav ms-auto">
 					<li class="nav-item"><a class="nav-link active"
-						aria-current="page" href="#">Home</a></li>
+						aria-current="page" href="/userhome">Home</a></li>
 					<li class="nav-item"><a class="nav-link" href="#"
 						id="logoutBtn">Logout</a></li>
 				</ul>
@@ -102,9 +102,9 @@ body {
 		<div class="row">
 			<div class="col-md-4">
 				<div class="profile-section text-center">
-					<img src="/placeholder.svg?height=100&width=100"
-						alt="Profile Picture" class="profile-picture mb-3">
-					<h2 class="username" id="username">JohnDoe</h2>
+					<img src="/api/placeholder/100/100" alt="Profile Picture"
+						class="profile-picture mb-3">
+					<h2 class="username" id="username">Loading...</h2>
 					<button class="btn btn-success mt-3"
 						onclick="location.href='/editprofile'">Edit Profile</button>
 				</div>
@@ -117,8 +117,7 @@ body {
 							<div class="feature-icon">🌿</div>
 							<h3>Grow Wise Advisor</h3>
 							<p>Search for plants and get detailed care instructions.</p>
-							<a href="grow-wise-advisor.html" class="btn btn-success">Explore
-								Plants</a>
+							<a href="/plantsearch" class="btn btn-success">Explore Plants</a>
 						</div>
 					</div>
 					<div class="col-md-6 mb-4">
@@ -127,7 +126,7 @@ body {
 							<h3>Plant Identifier</h3>
 							<p>Identify plants by uploading an image of the plant or
 								leaf.</p>
-							<a href="plant-identifier.html" class="btn btn-success">Identify
+							<a href="/plantidentification" class="btn btn-success">Identify
 								Plants</a>
 						</div>
 					</div>
@@ -137,7 +136,7 @@ body {
 							<h3>Community Forum</h3>
 							<p>Join discussions, ask questions, and share your gardening
 								knowledge.</p>
-							<a href="community-forum.html" class="btn btn-success">Join
+							<a href="/communityPost" class="btn btn-success">Join
 								Discussions</a>
 						</div>
 					</div>
@@ -146,7 +145,7 @@ body {
 							<div class="feature-icon">📝</div>
 							<h3>My Posts</h3>
 							<p>Manage your forum posts and contributions.</p>
-							<a href="my-posts.html" class="btn btn-success">Manage Posts</a>
+							<a href="/post" class="btn btn-success">Manage Posts</a>
 						</div>
 					</div>
 				</div>
