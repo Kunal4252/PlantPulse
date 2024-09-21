@@ -1,8 +1,9 @@
 // Function to get the access token (now handled by fetchWithToken)
 
 document.addEventListener('DOMContentLoaded', function() {
+	if (!checkAuthentication()) return;
 	const searchForm = document.getElementById('searchForm');
-	const searchInput = document.getElementById('searchInput');
+	/*const searchInput = document.getElementById('searchInput');*/
 
 	searchForm.addEventListener('submit', function(e) {
 		e.preventDefault(); // Prevent the form from submitting normally
@@ -292,3 +293,20 @@ async function loadPosts() {
 
 // Load posts on page load
 document.addEventListener('DOMContentLoaded', loadPosts);
+
+const logoutBtn = document.getElementById("logoutBtn");
+if (logoutBtn) {
+	logoutBtn.addEventListener("click", function(event) {
+		event.preventDefault();
+		logout(); // Call the logout function from auth.js
+	});
+}
+
+function checkAuthentication() {
+	const accessToken = getAccessToken(); // Use getAccessToken from auth.js
+	if (!accessToken) {
+		window.location.href = '/signIn';
+		return false;
+	}
+	return true;
+}

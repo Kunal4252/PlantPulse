@@ -200,8 +200,13 @@ document.addEventListener('DOMContentLoaded', () => {
 	displayWelcomeMessage();
 
 	// Add logout button functionality
-	const logoutButton = document.getElementById('logoutButton');
-	if (logoutButton) {
-		logoutButton.addEventListener('click', logout);
+
+	const logoutBtn = document.getElementById("logoutBtn");
+	if (logoutBtn) {
+		logoutBtn.addEventListener("click", function(event) {
+			event.preventDefault();
+			logout(); // Call the logout function from auth.js
+		});
 	}
+
 });

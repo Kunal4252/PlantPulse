@@ -57,4 +57,5 @@ public class AuthTokenService {
 		authTokenRepository.deleteExpiredTokens(now);
 	}
 
+	
 }

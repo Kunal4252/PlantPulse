@@ -147,7 +147,7 @@ async function fetchPosts() {
 
 	} catch (error) {
 		console.error('Error fetching posts:', error);
-		alert('Failed to load posts. Please try again later.');
+
 	}
 }
 // Function to handle new post submission using fetchWithToken
@@ -224,5 +224,34 @@ async function deletePost(postId) {
 }
 
 // Event Listeners
+document.addEventListener('DOMContentLoaded', function() {
+	if (!checkAuthentication()) {
+		return; // Stop execution if not authenticated
+	}
+});
 document.addEventListener('DOMContentLoaded', fetchPosts);
 document.getElementById('newPostForm').addEventListener('submit', handleNewPost);
+document.addEventListener('DOMContentLoaded', function() {
+	if (!checkAuthentication()) {
+		return; // Stop execution if not authenticated
+	}
+});
+
+const logoutBtn = document.getElementById("logoutBtn");
+if (logoutBtn) {
+	logoutBtn.addEventListener("click", function(event) {
+		event.preventDefault();
+		logout(); // Call the logout function from auth.js
+	});
+}
+
+
+
+function checkAuthentication() {
+	const accessToken = getAccessToken(); // Use getAccessToken from auth.js
+	if (!accessToken) {
+		window.location.href = '/signIn';
+		return false;
+	}
+	return true;
+}

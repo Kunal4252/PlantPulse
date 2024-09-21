@@ -1,6 +1,17 @@
 // Ensure auth.js is included before this script
 
+function checkAuthentication() {
+	const accessToken = getAccessToken(); // Use getAccessToken from auth.js
+	if (!accessToken) {
+		window.location.href = '/signIn';
+		return false;
+	}
+	return true;
+}
 document.addEventListener("DOMContentLoaded", async function() {
+	if (!checkAuthentication()) {
+		return; // Stop execution if not authenticated
+	}
 	try {
 		// Use fetchWithToken from auth.js to handle token management
 		const response = await fetchWithToken('/api/users/profile', {
@@ -21,7 +32,7 @@ document.addEventListener("DOMContentLoaded", async function() {
 			displayUserProfile(profileData);
 		} else if (response.status === 401 || response.status === 403) {
 			// Unauthorized or Forbidden access
-			alert("Unauthorized access. Please log in again.");
+
 			clearTokens(); // Clear tokens using clearTokens from auth.js
 			window.location.href = "/signIn"; // Redirect to login page
 		} else {
@@ -46,9 +57,12 @@ function displayUserProfile(profileData) {
 	}
 }
 
-// Add event listener for logout button
-document.getElementById("logoutBtn").addEventListener("click", function(event) {
-	event.preventDefault();
-	clearTokens(); // Clear tokens using clearTokens from auth.js
-	window.location.href = "/signIn"; // Redirect to login page
-});
+
+const logoutBtn = document.getElementById("logoutBtn");
+if (logoutBtn) {
+	logoutBtn.addEventListener("click", function(event) {
+		event.preventDefault();
+		logout(); // Call the logout function from auth.js
+	});
+}
+

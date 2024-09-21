@@ -24,6 +24,7 @@ style.textContent = `
 document.head.appendChild(style);
 
 document.addEventListener("DOMContentLoaded", function() {
+	if (!checkAuthentication()) return;
 	const profileForm = document.getElementById("profileForm");
 	const currentProfilePicture = document.getElementById('currentProfilePicture');
 	const removeImageBtn = document.getElementById('removeImageBtn');
@@ -41,11 +42,14 @@ document.addEventListener("DOMContentLoaded", function() {
 		updateProfile();
 	});
 
-	// Handle logout
-	document.getElementById("logoutBtn").addEventListener("click", function(event) {
-		event.preventDefault();
-		logout(); // Using logout function from auth.js
-	});
+	const logoutBtn = document.getElementById("logoutBtn");
+	if (logoutBtn) {
+		logoutBtn.addEventListener("click", function(event) {
+			event.preventDefault();
+			logout(); // Call the logout function from auth.js
+		});
+	}
+
 
 	// Handle remove image button click
 	removeImageBtn.addEventListener("click", function(event) {
@@ -57,6 +61,9 @@ document.addEventListener("DOMContentLoaded", function() {
 	profileImageInput.addEventListener("change", function() {
 		removeImageBtn.style.display = this.files.length > 0 || currentProfilePicture.src !== 'api/placeholder/150/150' ? "block" : "none";
 	});
+
+
+
 });
 
 function wrapImageInContainer(imgElement) {
@@ -168,7 +175,12 @@ async function removeProfileImage() {
 	}
 }
 
-function handleUnauthorized() {
-	alert("Your session has expired. Please log in again.");
-	logout(); // Using logout function from auth.js
+
+function checkAuthentication() {
+	const accessToken = getAccessToken(); // Use getAccessToken from auth.js
+	if (!accessToken) {
+		window.location.href = '/signIn';
+		return false;
+	}
+	return true;
 }

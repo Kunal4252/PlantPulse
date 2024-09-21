@@ -1,12 +1,25 @@
 let imageCount = 1;
 
 document.addEventListener('DOMContentLoaded', function() {
+	if (!checkAuthentication()) {
+		return; // Stop execution if not authenticated
+	}
 	const plantForm = document.getElementById('plantForm');
 	const resultDiv = document.getElementById('result');
 	const refreshButton = document.getElementById('refreshButton');
 	const addImageButton = document.getElementById('addImage');
 	const imageInputsDiv = document.getElementById('imageInputs');
 	const loadingSpinner = document.getElementById('loadingSpinner');
+
+
+	const logoutBtn = document.getElementById("logoutBtn");
+	if (logoutBtn) {
+		logoutBtn.addEventListener("click", function(event) {
+			event.preventDefault();
+			logout(); // Call the logout function from auth.js
+		});
+	}
+
 
 	// Load persistent results if available
 	const savedResults = localStorage.getItem('plantIdentificationResults');
@@ -66,12 +79,36 @@ document.addEventListener('DOMContentLoaded', function() {
 		const imageForms = imageInputsDiv.querySelectorAll('.card');
 		imageForms.forEach((form, index) => {
 			const newIndex = index + 1;
-			form.querySelector('.card-title').textContent = `Plant Image ${newIndex}`;
-			form.querySelector('label[for^="image"]').textContent = `Plant Image ${newIndex}:`;
-			form.querySelector('input[id^="image"]').id = `image${newIndex}`;
-			form.querySelector('img[id^="preview"]').id = `preview${newIndex}`;
-			form.querySelector('label[for^="organ"]').setAttribute('for', `organ${newIndex}`);
-			form.querySelector('select[id^="organ"]').id = `organ${newIndex}`;
+
+			const cardTitle = form.querySelector('.card-title');
+			if (cardTitle) {
+				cardTitle.textContent = `Plant Image ${newIndex}`;
+			}
+
+			const imageLabel = form.querySelector('label[for^="image"]');
+			if (imageLabel) {
+				imageLabel.textContent = `Plant Image ${newIndex}:`;
+			}
+
+			const imageInput = form.querySelector('input[id^="image"]');
+			if (imageInput) {
+				imageInput.id = `image${newIndex}`;
+			}
+
+			const previewImage = form.querySelector('img[id^="preview"]');
+			if (previewImage) {
+				previewImage.id = `preview${newIndex}`;
+			}
+
+			const organLabel = form.querySelector('label[for^="organ"]');
+			if (organLabel) {
+				organLabel.setAttribute('for', `organ${newIndex}`);
+			}
+
+			const organSelect = form.querySelector('select[id^="organ"]');
+			if (organSelect) {
+				organSelect.id = `organ${newIndex}`;
+			}
 		});
 	}
 
@@ -221,4 +258,13 @@ function setupImagePreview(index) {
 			reader.readAsDataURL(this.files[0]);
 		}
 	});
+}
+
+function checkAuthentication() {
+	const accessToken = getAccessToken(); // Use getAccessToken from auth.js
+	if (!accessToken) {
+		window.location.href = '/signIn';
+		return false;
+	}
+	return true;
 }

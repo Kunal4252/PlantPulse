@@ -83,9 +83,34 @@ async function fetchWithToken(url, options = {}) {
 	return response;
 }
 
-function logout() {
-	clearTokens();
-	window.location.href = '/signIn';
+async function logout() {
+	const refreshToken = getRefreshToken();
+
+	if (!refreshToken) {
+		console.error('No refresh token available for logout.');
+		clearTokens();
+		window.location.href = '/signIn';
+		return;
+	}
+
+	try {
+		const response = await fetch('api/users/logout', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ refreshToken })
+		});
+
+		if (response.ok) {
+			console.log('Logout successful');
+		} else {
+			console.error('Logout failed:', await response.text());
+		}
+	} catch (error) {
+		console.error('Error during logout:', error);
+	} finally {
+		clearTokens();
+		window.location.href = '/signIn';
+	}
 }
-
-
