@@ -27,6 +27,7 @@ import com.kunal.gardengenius.DTO.AuthRequest;
 import com.kunal.gardengenius.DTO.AuthResponse;
 import com.kunal.gardengenius.DTO.LogoutRequest;
 import com.kunal.gardengenius.DTO.RefreshTokenRequest;
+import com.kunal.gardengenius.DTO.RefreshTokenResponse;
 import com.kunal.gardengenius.DTO.UserDTO;
 import com.kunal.gardengenius.entity.AuthToken;
 import com.kunal.gardengenius.entity.User;
@@ -34,7 +35,6 @@ import com.kunal.gardengenius.repository.UserRepository;
 import com.kunal.gardengenius.service.AuthTokenService;
 import com.kunal.gardengenius.service.JwtUtils;
 import com.kunal.gardengenius.service.RefreshTokenService;
-import com.kunal.gardengenius.service.TokenBlacklistService;
 import com.kunal.gardengenius.service.UserInfoDetails;
 import com.kunal.gardengenius.service.UserService;
 
@@ -59,9 +59,6 @@ public class UserController {
 
 	@Autowired
 	private RefreshTokenService refreshTokenService;
-
-	@Autowired
-	private TokenBlacklistService tokenBlacklistService;
 
 	@PostMapping("/login")
 	public ResponseEntity<AuthResponse> authenticate(@ModelAttribute AuthRequest authRequest) {
@@ -91,33 +88,27 @@ public class UserController {
 	}
 
 	@PostMapping("/refresh")
-	public ResponseEntity<AuthResponse> refreshAccessToken(@RequestBody RefreshTokenRequest request) {
-
-		// Extract the refresh token from the request
+	public ResponseEntity<RefreshTokenResponse> refreshAccessToken(@RequestBody RefreshTokenRequest request) {
 		String refreshToken = request.getRefreshToken();
 
-		// Check if the refresh token is null
 		if (refreshToken == null) {
-			return ResponseEntity.badRequest().body(null); // or return a custom error response
+			return ResponseEntity.badRequest().body(new RefreshTokenResponse(null, "Refresh token is required"));
 		}
 
-		// Validate the refresh token
 		if (!refreshTokenService.validateRefreshToken(refreshToken)) {
-			return ResponseEntity.badRequest().body(null); // or return a custom error response
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+					.body(new RefreshTokenResponse(null, "Invalid or expired refresh token"));
 		}
 
-		// Extract the username from the valid refresh token
-		String username = refreshTokenService.getUserNameFromRefreshToken(refreshToken);
+		try {
+			String username = refreshTokenService.getUserNameFromRefreshToken(refreshToken);
+			String newAccessToken = refreshTokenService.createNewAccessToken(username);
 
-		// Generate a new access token and a new refresh token
-		String newAccessToken = refreshTokenService.createNewAccessToken(username);
-		String newRefreshToken = refreshTokenService.createNewRefreshToken(username);
-
-		// Replace the old refresh token with the new one in the database
-		refreshTokenService.replaceRefreshToken(refreshToken, newRefreshToken);
-
-		// Return the new tokens in the response
-		return ResponseEntity.ok(new AuthResponse(newAccessToken, newRefreshToken));
+			return ResponseEntity.ok(new RefreshTokenResponse(newAccessToken, "Access token refreshed successfully"));
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(new RefreshTokenResponse(null, "Error occurred while refreshing token"));
+		}
 	}
 
 	@PostMapping("/register")
@@ -148,33 +139,17 @@ public class UserController {
 
 	@PostMapping("/logout")
 	public ResponseEntity<String> logout(@RequestBody LogoutRequest logoutRequest) {
-		String accessToken = logoutRequest.getAccessToken();
 		String refreshToken = logoutRequest.getRefreshToken();
 
-		// Validate and remove the refresh token
+		// Validate the refresh token
 		if (refreshToken == null || refreshToken.isEmpty()) {
 			return ResponseEntity.badRequest().body("Refresh token is missing");
-		}
-
-		// Validate the access token
-		if (accessToken == null || accessToken.isEmpty() || !jwtUtils.validateAccessToken(accessToken)) {
-			return ResponseEntity.badRequest().body("Access token is invalid or missing");
 		}
 
 		boolean isRefreshTokenRemoved = refreshTokenService.removeRefreshToken(refreshToken);
 
 		if (!isRefreshTokenRemoved) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired refresh token");
-		}
-
-		// Clear the security context
-		SecurityContextHolder.clearContext();
-
-		// Invalidate the access token by adding it to the blacklist
-		boolean isAccessTokenBlacklisted = tokenBlacklistService.blacklistToken(accessToken);
-
-		if (!isAccessTokenBlacklisted) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to blacklist access token");
 		}
 
 		// Clear the security context
@@ -272,14 +247,7 @@ public class UserController {
 	}
 
 	private String extractPublicIdFromUrl(String imageUrl) {
-		// This method should extract the public ID from the Cloudinary URL
-		// The implementation depends on the format of your Cloudinary URLs
-		// For example:
-		// "https://res.cloudinary.com/your-cloud-name/image/upload/v1234567890/abcdef.jpg"
-		// The public ID would be "abcdef"
-		// You might need to use regex or string manipulation to extract this
 
-		// This is a simplified example:
 		String[] parts = imageUrl.split("/");
 		String fileName = parts[parts.length - 1];
 		return fileName.substring(0, fileName.lastIndexOf('.'));

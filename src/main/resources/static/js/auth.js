@@ -1,87 +1,88 @@
 // auth.js
 
-// Function to get the access token from localStorage
 function getAccessToken() {
 	return localStorage.getItem('accessToken');
 }
 
-// Function to get the refresh token from localStorage
 function getRefreshToken() {
 	return localStorage.getItem('refreshToken');
 }
 
-// Function to save tokens in localStorage
-function saveTokens(accessToken, refreshToken) {
+function saveAccessToken(accessToken) {
 	localStorage.setItem('accessToken', accessToken);
+}
+
+function saveRefreshToken(refreshToken) {
 	localStorage.setItem('refreshToken', refreshToken);
 }
 
-// Function to remove tokens from localStorage (e.g., for logout)
 function clearTokens() {
 	localStorage.removeItem('accessToken');
 	localStorage.removeItem('refreshToken');
 }
 
-// Function to refresh the access token
 async function refreshAccessToken() {
 	const refreshToken = getRefreshToken();
 
 	if (!refreshToken) {
 		console.error('No refresh token available.');
-		return null;
+		return { success: false, message: 'No refresh token available.' };
 	}
 
-	const response = await fetch('api/users/refresh', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify({ refreshToken })
-	});
+	try {
+		const response = await fetch('api/users/refresh', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ refreshToken })
+		});
 
-	if (response.ok) {
 		const data = await response.json();
-		saveTokens(data.accessToken, data.refreshToken);
-		return data.accessToken;
-	} else {
-		console.error('Failed to refresh token. Redirecting to login...');
+
+		if (response.ok) {
+			saveAccessToken(data.accessToken);
+			return { success: true, accessToken: data.accessToken, message: data.message };
+		} else {
+			console.error('Failed to refresh token:', data.message);
+			clearTokens();
+			return { success: false, message: data.message };
+		}
+	} catch (error) {
+		console.error('Error refreshing token:', error);
 		clearTokens();
-		window.location.href = '/signIn'; // Redirect to login page
-		return null;
+		return { success: false, message: 'Network error occurred while refreshing token.' };
 	}
 }
 
-// Function to perform a fetch with token management (retry after token refresh)
 async function fetchWithToken(url, options = {}) {
-	let token = getAccessToken();
+	let accessToken = getAccessToken();
 
 	if (!options.headers) {
 		options.headers = {};
 	}
 
-	// Attach the Authorization header with the access token
-	options.headers['Authorization'] = `Bearer ${token}`;
+	options.headers['Authorization'] = `Bearer ${accessToken}`;
 
 	let response = await fetch(url, options);
 
-	// If access token is expired (401), refresh token and retry
 	if (response.status === 401) {
 		console.log('Access token expired, trying to refresh...');
 
-		// Refresh access token
-		token = await refreshAccessToken();
+		const refreshResult = await refreshAccessToken();
 
-		if (token) {
-			// Retry the original request with the new token
-			options.headers['Authorization'] = `Bearer ${token}`;
+		if (refreshResult.success) {
+			options.headers['Authorization'] = `Bearer ${refreshResult.accessToken}`;
 			response = await fetch(url, options);
+		} else {
+			console.error('Token refresh failed:', refreshResult.message);
+			window.location.href = '/signIn';
 		}
 	}
 
 	return response;
 }
 
-// Logout function: clear tokens and redirect to login
 function logout() {
 	clearTokens();
 	window.location.href = '/signIn';

@@ -155,7 +155,7 @@ async function removeProfileImage() {
 
 		if (response.ok) {
 			const currentProfilePicture = document.getElementById("currentProfilePicture");
-			currentProfilePicture.src = '/placeholder.svg?height=150&width=150';
+			currentProfilePicture.src = 'api/placeholder/150/150';
 			document.getElementById("removeImageBtn").style.display = "none";
 			document.getElementById("profileImageInput").value = "";
 			alert("Profile image removed successfully!");

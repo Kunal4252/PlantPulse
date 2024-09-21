@@ -15,7 +15,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.kunal.gardengenius.entity.User;
 import com.kunal.gardengenius.repository.UserRepository;
 import com.kunal.gardengenius.service.JwtUtils;
-import com.kunal.gardengenius.service.TokenBlacklistService;
 import com.kunal.gardengenius.service.UserInfoDetails;
 
 import io.jsonwebtoken.ExpiredJwtException;
@@ -36,9 +35,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private JwtUtils jwtUtils;
 
 	@Autowired
-	private TokenBlacklistService tokenBlacklistService;
-
-	@Autowired
 	private UserRepository repository;
 
 	@Override
@@ -47,11 +43,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		try {
 			String jwt = parseJwt(request);
 			if (jwt != null && jwtUtils.validateAccessToken(jwt)) {
-				if (tokenBlacklistService.isTokenBlacklisted(jwt)) {
-					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized
-					response.getWriter().write("Token is invalid or blacklisted");
-					return;
-				}
 				String username = jwtUtils.getUserNameFromAccessToken(jwt);
 				User user = repository.findByUsername(username);
 				if (user != null) {
@@ -65,16 +56,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			filterChain.doFilter(request, response);
 		} catch (ExpiredJwtException e) {
 			handleException(response, HttpServletResponse.SC_UNAUTHORIZED, "JWT token has expired");
-			return; // Stop the filter chain
 		} catch (JwtException e) {
 			handleException(response, HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token");
-			return; // Stop the filter chain
 		} catch (AuthenticationException e) {
 			handleException(response, HttpServletResponse.SC_UNAUTHORIZED, "Authentication failed");
-			return; // Stop the filter chain
 		} catch (Exception e) {
 			handleException(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An unexpected error occurred");
-			return; // Stop the filter chain
 		}
 	}
 

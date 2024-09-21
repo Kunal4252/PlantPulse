@@ -39,4 +39,8 @@ public class AuthToken {
 	private String refreshToken;
 
 	private LocalDateTime expiryDate;
+
+	public boolean isExpired() {
+		return LocalDateTime.now().isAfter(this.expiryDate);
+	}
 }

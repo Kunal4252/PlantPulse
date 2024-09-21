@@ -21,47 +21,75 @@ document.addEventListener('DOMContentLoaded', function() {
 			const newInput = document.createElement('div');
 			newInput.classList.add('card', 'mb-3');
 			newInput.innerHTML = `
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <label for="image${imageCount}" class="form-label">Plant Image ${imageCount}:</label>
-                                <input type="file" class="form-control" id="image${imageCount}" name="image" accept="image/*" required>
-                                <img id="preview${imageCount}" class="image-preview mt-2 d-none" alt="Image preview">
-                            </div>
-                            <div class="mb-3">
-                                <label for="organ${imageCount}" class="form-label">Plant Organ:</label>
-                                <select class="form-select" id="organ${imageCount}" name="organ" required>
-                                    <option value="">Select plant part</option>
-                                    <option value="flower">Flower</option>
-                                    <option value="leaf">Leaf</option>
-                                    <option value="fruit">Fruit</option>
-                                    <option value="bark">Bark</option>
-                                    <option value="habit">Habit</option>
-                                    <option value="other">Other</option>
-                                </select>
-                            </div>
-                        </div>
-                    `;
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="card-title mb-0">Plant Image ${imageCount}</h5>
+                        <button type="button" class="btn-close remove-image" aria-label="Close"></button>
+                    </div>
+                    <div class="mb-3">
+                        <label for="image${imageCount}" class="form-label">Plant Image ${imageCount}:</label>
+                        <input type="file" class="form-control" id="image${imageCount}" name="image" accept="image/*" required>
+                        <img id="preview${imageCount}" class="image-preview mt-2 d-none" alt="Image preview">
+                    </div>
+                    <div class="mb-3">
+                        <label for="organ${imageCount}" class="form-label">Plant Organ:</label>
+                        <select class="form-select" id="organ${imageCount}" name="organ" required>
+                            <option value="">Select plant part</option>
+                            <option value="flower">Flower</option>
+                            <option value="leaf">Leaf</option>
+                            <option value="fruit">Fruit</option>
+                            <option value="bark">Bark</option>
+                            <option value="habit">Habit</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+            `;
 			imageInputsDiv.appendChild(newInput);
 			setupImagePreview(imageCount);
+			setupRemoveButton(newInput);
 		} else {
 			alert('Maximum of 5 images allowed');
 		}
 	});
+
+	function setupRemoveButton(inputElement) {
+		const removeButton = inputElement.querySelector('.remove-image');
+		removeButton.addEventListener('click', () => {
+			inputElement.remove();
+			imageCount--;
+			updateImageNumbers();
+		});
+	}
+
+	function updateImageNumbers() {
+		const imageForms = imageInputsDiv.querySelectorAll('.card');
+		imageForms.forEach((form, index) => {
+			const newIndex = index + 1;
+			form.querySelector('.card-title').textContent = `Plant Image ${newIndex}`;
+			form.querySelector('label[for^="image"]').textContent = `Plant Image ${newIndex}:`;
+			form.querySelector('input[id^="image"]').id = `image${newIndex}`;
+			form.querySelector('img[id^="preview"]').id = `preview${newIndex}`;
+			form.querySelector('label[for^="organ"]').setAttribute('for', `organ${newIndex}`);
+			form.querySelector('select[id^="organ"]').id = `organ${newIndex}`;
+		});
+	}
 
 	plantForm.addEventListener('submit', async (e) => {
 		e.preventDefault();
 
 		const formData = new FormData();
 
-		for (let i = 1; i <= imageCount; i++) {
-			const imageFile = document.getElementById(`image${i}`).files[0];
-			const organ = document.getElementById(`organ${i}`).value;
+		const imageForms = imageInputsDiv.querySelectorAll('.card');
+		imageForms.forEach((form, index) => {
+			const imageFile = form.querySelector('input[type="file"]').files[0];
+			const organ = form.querySelector('select').value;
 
 			if (imageFile && organ) {
 				formData.append('images', imageFile);
 				formData.append('organs', organ);
 			}
-		}
+		});
 
 		try {
 			loadingSpinner.style.display = 'block';
@@ -87,10 +115,10 @@ document.addEventListener('DOMContentLoaded', function() {
 		} catch (error) {
 			console.error('Error:', error);
 			resultDiv.innerHTML = `
-                        <div class="alert alert-danger" role="alert">
-                            An error occurred. Please try again. Error: ${error.message}
-                        </div>
-                    `;
+                <div class="alert alert-danger" role="alert">
+                    An error occurred. Please try again. Error: ${error.message}
+                </div>
+            `;
 		} finally {
 			loadingSpinner.style.display = 'none';
 		}
@@ -111,28 +139,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
 		// Reset image inputs to initial state
 		imageInputsDiv.innerHTML = `
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <label for="image1" class="form-label">Plant Image 1:</label>
-                                <input type="file" class="form-control" id="image1" name="image" accept="image/*" required>
-                                <img id="preview1" class="image-preview mt-2 d-none" alt="Image preview">
-                            </div>
-                            <div class="mb-3">
-                                <label for="organ1" class="form-label">Plant Organ:</label>
-                                <select class="form-select" id="organ1" name="organ" required>
-                                    <option value="">Select plant part</option>
-                                    <option value="flower">Flower</option>
-                                    <option value="leaf">Leaf</option>
-                                    <option value="fruit">Fruit</option>
-                                    <option value="bark">Bark</option>
-                                    <option value="habit">Habit</option>
-                                    <option value="other">Other</option>
-                                </select>
-                            </div>
-                        </div>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="image1" class="form-label">Plant Image 1:</label>
+                        <input type="file" class="form-control" id="image1" name="image" accept="image/*" required>
+                        <img id="preview1" class="image-preview mt-2 d-none" alt="Image preview">
                     </div>
-                `;
+                    <div class="mb-3">
+                        <label for="organ1" class="form-label">Plant Organ:</label>
+                        <select class="form-select" id="organ1" name="organ" required>
+                            <option value="">Select plant part</option>
+                            <option value="flower">Flower</option>
+                            <option value="leaf">Leaf</option>
+                            <option value="fruit">Fruit</option>
+                            <option value="bark">Bark</option>
+                            <option value="habit">Habit</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        `;
 
 		// Reset imageCount
 		imageCount = 1;

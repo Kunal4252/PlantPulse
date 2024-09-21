@@ -6,11 +6,14 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.kunal.gardengenius.entity.AuthToken;
 import com.kunal.gardengenius.entity.User;
 import com.kunal.gardengenius.repository.AuthTokenRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class AuthTokenService {
@@ -46,9 +49,12 @@ public class AuthTokenService {
 		authToken.setExpiryDate(expiryDate);
 		return authToken;
 	}
-	
-	
-	
 
-	// Add additional methods as needed
+	@Scheduled(cron = "0 0 * * * *") // Run every hour
+	@Transactional
+	public void cleanupExpiredTokens() {
+		LocalDateTime now = LocalDateTime.now();
+		authTokenRepository.deleteExpiredTokens(now);
+	}
+
 }
