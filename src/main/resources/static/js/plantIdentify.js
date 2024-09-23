@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	const imageInputsDiv = document.getElementById('imageInputs');
 	const loadingSpinner = document.getElementById('loadingSpinner');
 
-
 	const logoutBtn = document.getElementById("logoutBtn");
 	if (logoutBtn) {
 		logoutBtn.addEventListener("click", function(event) {
@@ -137,11 +136,19 @@ document.addEventListener('DOMContentLoaded', function() {
 				body: formData
 			});
 
-			if (!response.ok) {
-				throw new Error(`HTTP error! status: ${response.status}`);
+			const contentType = response.headers.get("content-type");
+			let data;
+
+			if (contentType && contentType.indexOf("application/json") !== -1) {
+				data = await response.json();
+			} else {
+				data = await response.text();
 			}
 
-			const data = await response.json();
+			if (!response.ok) {
+				throw new Error(typeof data === 'string' ? data : data.message || `HTTP error! status: ${response.status}`);
+			}
+
 			displayResults(data);
 
 			// Save results to localStorage
@@ -151,16 +158,11 @@ document.addEventListener('DOMContentLoaded', function() {
 			refreshButton.style.display = 'inline-block';
 		} catch (error) {
 			console.error('Error:', error);
-			resultDiv.innerHTML = `
-                <div class="alert alert-danger" role="alert">
-                    An error occurred. Please try again. Error: ${error.message}
-                </div>
-            `;
+			displayError(error.message);
 		} finally {
 			loadingSpinner.style.display = 'none';
 		}
 	});
-
 	refreshButton.addEventListener('click', function() {
 		// Clear form
 		plantForm.reset();
@@ -210,37 +212,55 @@ document.addEventListener('DOMContentLoaded', function() {
 	setupImagePreview(1);
 });
 
+
 // Function to display results
 function displayResults(results) {
 	const resultDiv = document.getElementById('result');
 	resultDiv.innerHTML = '';
 
-	results.forEach((plant, index) => {
-		const card = document.createElement('div');
-		card.classList.add('card', 'mb-3', 'position-relative');
-		card.innerHTML = `
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">Plant ${index + 1}: ${plant.scientificName}</h5>
+	if (Array.isArray(results) && results.length > 0) {
+		results.forEach((plant, index) => {
+			const card = document.createElement('div');
+			card.classList.add('card', 'mb-3', 'position-relative');
+			card.innerHTML = `
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Plant ${index + 1}: ${plant.scientificName}</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text"><strong>Common Names:</strong> ${plant.commonNames}</p>
+                    <p class="card-text"><strong>Family:</strong> ${plant.family}</p>
+                    <p class="card-text"><strong>Genus:</strong> ${plant.genus}</p>
+                    <div class="mt-3">
+                        <a href="https://www.gbif.org/species/${plant.gbifId}" target="_blank" class="btn btn-outline-primary me-2">
+                            <i class="fas fa-external-link-alt me-2"></i>View on GBIF
+                        </a>
+                        <a href="http://powo.science.kew.org/taxon/${plant.powoId}" target="_blank" class="btn btn-outline-secondary">
+                            <i class="fas fa-external-link-alt me-2"></i>View on POWO
+                        </a>
                     </div>
-                    <div class="card-body">
-                        <p class="card-text"><strong>Common Names:</strong> ${plant.commonNames}</p>
-                        <p class="card-text"><strong>Family:</strong> ${plant.family}</p>
-                        <p class="card-text"><strong>Genus:</strong> ${plant.genus}</p>
-                        <div class="mt-3">
-                            <a href="https://www.gbif.org/species/${plant.gbifId}" target="_blank" class="btn btn-outline-primary me-2">
-                                <i class="fas fa-external-link-alt me-2"></i>View on GBIF
-                            </a>
-                            <a href="http://powo.science.kew.org/taxon/${plant.powoId}" target="_blank" class="btn btn-outline-secondary">
-                                <i class="fas fa-external-link-alt me-2"></i>View on POWO
-                            </a>
-                        </div>
-                    </div>
-                    <span class="result-tag ${index === 0 ? 'best-match' : index === 1 ? 'second-best' : 'd-none'}">
-                        ${index === 0 ? 'Best Match' : index === 1 ? 'Second Best' : ''}
-                    </span>
-                `;
-		resultDiv.appendChild(card);
-	});
+                </div>
+                <span class="result-tag ${index === 0 ? 'best-match' : index === 1 ? 'second-best' : 'd-none'}">
+                    ${index === 0 ? 'Best Match' : index === 1 ? 'Second Best' : ''}
+                </span>
+            `;
+			resultDiv.appendChild(card);
+		});
+	} else {
+		displayError("No plants were identified. Please try with a clearer image.");
+	}
+}
+
+// New function to display errors
+function displayError(message) {
+	const resultDiv = document.getElementById('result');
+	resultDiv.innerHTML = `
+        <div class="alert alert-danger" role="alert">
+            <h4 class="alert-heading">Error</h4>
+            <p>${message}</p>
+            <hr>
+            <p class="mb-0">Please try again with a different image or check your internet connection.</p>
+        </div>
+    `;
 }
 
 // Function to setup image preview
