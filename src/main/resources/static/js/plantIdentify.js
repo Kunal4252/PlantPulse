@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			loadingSpinner.style.display = 'block';
 			resultDiv.innerHTML = '';
 
-			const response = await fetchWithToken('http://localhost:8082/api/plants/identify', {
+			const response = await fetchWithToken('/api/plants/identify', {
 				method: 'POST',
 				body: formData
 			});

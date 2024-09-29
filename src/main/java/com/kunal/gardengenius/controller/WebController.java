@@ -42,7 +42,7 @@ public class WebController {
 
 	@GetMapping("/post")
 	public String postPage() {
-		return "post";
+		return "Post";
 	}
 
 	@GetMapping("/plantidentification")

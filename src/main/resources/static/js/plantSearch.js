@@ -1,6 +1,6 @@
 // plant-search-api.js
 
-const API_BASE_URL = 'http://localhost:8082/api/plants'; // Replace with your actual API base URL
+const API_BASE_URL = '/api/plants'; // Replace with your actual API base URL
 
 async function searchPlants(query = '') {
 	try {
@@ -149,7 +149,7 @@ function displayWelcomeMessage() {
 	const resultsContainer = document.getElementById('plantResults');
 	resultsContainer.innerHTML = `
         <div class="col-12 text-center">
-            <h2>Welcome to GardenGenius!</h2>
+            <h2>Welcome to PlantPulse!</h2>
             <p class="lead">Discover a world of plants and gardening wisdom.</p>
             <p>Use the search bar above to find information about your favorite plants or discover new ones.</p>
             <div class="mt-4">

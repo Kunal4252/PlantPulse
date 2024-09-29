@@ -1,9 +1,11 @@
+// Placeholder image URL
+const PLACEHOLDER_IMAGE_URL = 'https://res.cloudinary.com/dwk6jdkay/image/upload/v1727561897/placeholder_zif0lg.svg';
+
 // Function to get the access token (now handled by fetchWithToken)
 
 document.addEventListener('DOMContentLoaded', function() {
 	if (!checkAuthentication()) return;
 	const searchForm = document.getElementById('searchForm');
-	/*const searchInput = document.getElementById('searchInput');*/
 
 	searchForm.addEventListener('submit', function(e) {
 		e.preventDefault(); // Prevent the form from submitting normally
@@ -13,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	// Load posts on page load
 	loadPosts();
 });
+
 // Function to format date
 function formatDate(dateString) {
 	const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
@@ -22,7 +25,7 @@ function formatDate(dateString) {
 function createAnswerElement(answer, postId) {
 	return `
         <div class="answer" data-answer-id="${answer.id}">
-            <img src="${answer.profileImageUrl || '/api/placeholder/40/40'}" alt="${answer.userName}" class="user-avatar" style="width: 30px; height: 30px;">
+            <img src="${answer.profileImageUrl || PLACEHOLDER_IMAGE_URL}" alt="${answer.userName}" class="user-avatar" style="width: 30px; height: 30px;">
             <strong>${answer.userName}:</strong> ${answer.content}
             <small class="d-block mt-1">Posted on ${formatDate(answer.createdDate)}</small>
             <button class="btn btn-sm btn-outline-success greenify-btn answer-like-btn" onclick="toggleAnswerLike(${postId}, ${answer.id})" title="Greenify this answer">
@@ -32,13 +35,14 @@ function createAnswerElement(answer, postId) {
         </div>
     `;
 }
+
 // Function to create a post element
 function createPostElement(post) {
 	const postElement = document.createElement('div');
 	postElement.className = 'forum-post';
 	postElement.innerHTML = `
         <div class="post-header d-flex align-items-center">
-            <img src="${post.profileImageUrl || '/api/placeholder/40/40'}" alt="${post.userName}" class="user-avatar">
+            <img src="${post.profileImageUrl || PLACEHOLDER_IMAGE_URL}" alt="${post.userName}" class="user-avatar">
             <div>
                 <h5 class="mb-0">${post.title}</h5>
                 <small>Posted by ${post.userName} on ${formatDate(post.createdDate)}</small>
@@ -113,7 +117,6 @@ async function toggleAnswerLike(postId, answerId) {
 }
 
 // Generic function to toggle like for both posts and answers
-// Generic function to toggle like for both posts and answers
 async function toggleLike(id, type, postId = null) {
 	try {
 		// Validate type
@@ -167,7 +170,6 @@ async function toggleLike(id, type, postId = null) {
 		alert(`Failed to update ${type} like status. Please try again later.`);
 	}
 }
-
 
 // Function to submit an answer
 async function submitAnswer(postId) {

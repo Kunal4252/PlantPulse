@@ -121,5 +121,6 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<finalName>GardenGenius</finalName>
 	</build>
 </project>

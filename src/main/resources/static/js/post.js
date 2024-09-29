@@ -1,3 +1,6 @@
+
+const PLACEHOLDER_IMAGE_URL = 'https://res.cloudinary.com/dwk6jdkay/image/upload/v1727561897/placeholder_zif0lg.svg';
+
 // Function to format date
 function formatDate(dateString) {
 	const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
@@ -7,7 +10,7 @@ function formatDate(dateString) {
 function createAnswerElement(answer, postId) {
 	return `
         <div class="answer" data-answer-id="${answer.id}">
-            <img src="${answer.profileImageUrl || '/api/placeholder/40/40'}" alt="${answer.userName}" class="user-avatar" style="width: 30px; height: 30px;">
+            <img src="${answer.profileImageUrl || PLACEHOLDER_IMAGE_URL}" alt="${answer.userName}" class="user-avatar" style="width: 30px; height: 30px;">
             <strong>${answer.userName}:</strong> ${answer.content}
             <small class="d-block mt-1">Posted on ${formatDate(answer.createdDate)}</small>
             <button class="btn btn-sm btn-outline-success greenify-btn answer-like-btn" onclick="toggleAnswerLike(${postId}, ${answer.id})" title="Greenify this answer">
@@ -23,7 +26,7 @@ function createPostElement(post) {
 	postElement.className = 'forum-post';
 	postElement.innerHTML = `
         <div class="post-header d-flex align-items-center">
-            <img src="${post.profileImageUrl || '/api/placeholder/40/40'}" alt="${post.userName}" class="user-avatar">
+            <img src="${post.profileImageUrl || PLACEHOLDER_IMAGE_URL}" alt="${post.userName}" class="user-avatar">
             <div>
                 <h5 class="mb-0">${post.title}</h5>
                 <small>Posted by ${post.userName} on ${formatDate(post.createdDate)}</small>

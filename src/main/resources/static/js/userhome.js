@@ -1,5 +1,7 @@
 // Ensure auth.js is included before this script
 
+const PLACEHOLDER_IMAGE_URL = 'https://res.cloudinary.com/dwk6jdkay/image/upload/v1727561897/placeholder_zif0lg.svg';
+
 function checkAuthentication() {
 	const accessToken = getAccessToken(); // Use getAccessToken from auth.js
 	if (!accessToken) {
@@ -8,6 +10,7 @@ function checkAuthentication() {
 	}
 	return true;
 }
+
 document.addEventListener("DOMContentLoaded", async function() {
 	if (!checkAuthentication()) {
 		return; // Stop execution if not authenticated
@@ -23,8 +26,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 		if (response.ok) {
 			const profileData = await response.json();
-
-
 			const userId = profileData.id;
 
 			// Save userId to localStorage
@@ -32,7 +33,6 @@ document.addEventListener("DOMContentLoaded", async function() {
 			displayUserProfile(profileData);
 		} else if (response.status === 401 || response.status === 403) {
 			// Unauthorized or Forbidden access
-
 			clearTokens(); // Clear tokens using clearTokens from auth.js
 			window.location.href = "/signIn"; // Redirect to login page
 		} else {
@@ -49,7 +49,7 @@ function displayUserProfile(profileData) {
 	document.getElementById("username").textContent = profileData.username;
 
 	// Update profile image
-	const profilePicUrl = profileData.profileImageUrl || '/api/placeholder/100/100';
+	const profilePicUrl = profileData.profileImageUrl || PLACEHOLDER_IMAGE_URL;
 	const profileImage = document.querySelector('.profile-picture');
 	if (profileImage) {
 		profileImage.src = profilePicUrl;

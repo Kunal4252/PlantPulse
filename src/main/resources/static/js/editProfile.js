@@ -23,6 +23,8 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
+const PLACEHOLDER_IMAGE_URL = 'https://res.cloudinary.com/dwk6jdkay/image/upload/v1727561897/placeholder_zif0lg.svg';
+
 document.addEventListener("DOMContentLoaded", function() {
 	if (!checkAuthentication()) return;
 	const profileForm = document.getElementById("profileForm");
@@ -50,20 +52,16 @@ document.addEventListener("DOMContentLoaded", function() {
 		});
 	}
 
-
 	// Handle remove image button click
 	removeImageBtn.addEventListener("click", function(event) {
 		event.preventDefault();
 		removeProfileImage();
 	});
 
-	// Show/hide remove button based on file input
+	// Show/hide remove button based on file input and current image
 	profileImageInput.addEventListener("change", function() {
-		removeImageBtn.style.display = this.files.length > 0 || currentProfilePicture.src !== 'api/placeholder/150/150' ? "block" : "none";
+		updateRemoveButtonVisibility();
 	});
-
-
-
 });
 
 function wrapImageInContainer(imgElement) {
@@ -102,21 +100,28 @@ function populateForm(profileData) {
 	document.getElementById("address").value = profileData.address || '';
 
 	const currentProfilePicture = document.getElementById("currentProfilePicture");
-	const removeImageBtn = document.getElementById("removeImageBtn");
-
-	// URL for the placeholder image
-	const placeholderImageUrl = 'api/placeholder/150/150';
 
 	if (profileData.profileImageUrl) {
 		currentProfilePicture.src = profileData.profileImageUrl;
-		removeImageBtn.style.display = "block";
 	} else {
-		currentProfilePicture.src = placeholderImageUrl;
-		removeImageBtn.style.display = "none";
+		currentProfilePicture.src = PLACEHOLDER_IMAGE_URL;
 	}
+
+	updateRemoveButtonVisibility();
 
 	// Reset the file input
 	document.getElementById("profileImageInput").value = "";
+}
+
+function updateRemoveButtonVisibility() {
+	const currentProfilePicture = document.getElementById("currentProfilePicture");
+	const removeImageBtn = document.getElementById("removeImageBtn");
+	const profileImageInput = document.getElementById("profileImageInput");
+
+	removeImageBtn.style.display =
+		(currentProfilePicture.src !== PLACEHOLDER_IMAGE_URL || profileImageInput.files.length > 0)
+			? "block"
+			: "none";
 }
 
 async function updateProfile() {
@@ -162,8 +167,8 @@ async function removeProfileImage() {
 
 		if (response.ok) {
 			const currentProfilePicture = document.getElementById("currentProfilePicture");
-			currentProfilePicture.src = 'api/placeholder/150/150';
-			document.getElementById("removeImageBtn").style.display = "none";
+			currentProfilePicture.src = PLACEHOLDER_IMAGE_URL;
+			updateRemoveButtonVisibility();
 			document.getElementById("profileImageInput").value = "";
 			alert("Profile image removed successfully!");
 		} else {
@@ -174,7 +179,6 @@ async function removeProfileImage() {
 		alert("Error removing profile image: " + error.message);
 	}
 }
-
 
 function checkAuthentication() {
 	const accessToken = getAccessToken(); // Use getAccessToken from auth.js
